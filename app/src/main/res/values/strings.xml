@@ -16,4 +16,7 @@
     <string name="newUserPassword2Txt">Repeat your password (pin with 4 numbers)</string>
     <string name="newUserRegisterBtn">Register new user</string>
 
+    <string name="newReminderBtn">Add Reminder</string>
+    <string name="reminderTitleTxt">Description:</string>
+
 </resources>
