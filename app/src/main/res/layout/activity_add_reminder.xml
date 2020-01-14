@@ -51,22 +51,22 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextDate"
+        android:id="@+id/editTextDays"
         android:layout_width="32dp"
         android:layout_height="36dp"
         android:layout_marginTop="370dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="310dp"
         android:ems="10"
-        android:hint="h"
+        android:hint="Days"
         android:inputType="number"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editText"
+        app:layout_constraintEnd_toStartOf="@+id/editTextMonth"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextTime"
+        android:id="@+id/editTextHours"
         android:layout_width="32dp"
         android:layout_height="36dp"
         android:layout_marginTop="420dp"
@@ -77,7 +77,7 @@
         android:inputType="number"
         android:textSize="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editText4"
+        app:layout_constraintEnd_toStartOf="@+id/editTextMin"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -89,7 +89,7 @@
         android:layout_marginEnd="30dp"
         android:text="@string/dateTitleTxt"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editTextDate"
+        app:layout_constraintEnd_toStartOf="@+id/editTextDays"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -102,19 +102,19 @@
         android:layout_marginEnd="30dp"
         android:text="@string/timeTitleTxt"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editTextTime"
+        app:layout_constraintEnd_toStartOf="@+id/editTextHours"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/editTextMonth"
         android:layout_width="32dp"
         android:layout_height="36dp"
         android:layout_marginTop="370dp"
         android:layout_marginEnd="170dp"
         android:layout_marginBottom="310dp"
         android:ems="10"
-        android:hint="min"
+        android:hint="Month"
         android:inputType="number"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -122,7 +122,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editText4"
+        android:id="@+id/editTextMin"
         android:layout_width="32dp"
         android:layout_height="36dp"
         android:layout_marginTop="420dp"

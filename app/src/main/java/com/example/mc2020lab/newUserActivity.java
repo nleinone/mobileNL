@@ -107,7 +107,6 @@ public class NewUserActivity extends AppCompatActivity {
             {
 
                 Toast.makeText(getApplicationContext(), "Account created!", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(NewUserActivity.this, MainActivity.class));
                 //Add username to shared preference:
                 Map<String, String> userInfoDict = new HashMap<String, String>();
                 userInfoDict.put("password", password_string);
@@ -118,16 +117,11 @@ public class NewUserActivity extends AppCompatActivity {
                 //Convert to JSON and insert JSON string to shared Reference:
                 //https://stackoverflow.com/questions/37048731/gson-library-in-android-studio/37049457
 
-
                 String JsonStringUserData = gson.toJson(rootUserInfoDict);
                 pref.edit().putString("user_information", JsonStringUserData).apply();
+                //startActivity(new Intent(NewUserActivity.this, MainActivity.class));
+                finish();
 
-                /*
-                //get from shared prefs
-                String storedHashMapString = prefs.getString("hashString", "oopsDintWork");
-                java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>(){}.getType();
-                HashMap<String, String> testHashMap2 = gson.fromJson(storedHashMapString, type);
-                 */
             }
 
         }

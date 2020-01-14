@@ -19,10 +19,16 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Check current shared reference for reminders:
+        //Get current shared preference
+
     }
 
     public void onClick(View v) {
@@ -31,8 +37,11 @@ public class MainActivity extends AppCompatActivity {
 
             //Check if credentials are correct:
             Gson gson = new Gson();
+
             SharedPreferences pref = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
 
+            //Clear memory
+            //pref.edit().clear().apply();
 
             DialogInterface.OnClickListener buttonListener =
                     new DialogInterface.OnClickListener() {
@@ -74,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
                             .create();
                     introDialog.show();
                 }
-
             }
             else
             {
