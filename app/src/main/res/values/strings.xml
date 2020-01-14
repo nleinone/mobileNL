@@ -2,6 +2,7 @@
     <string name="app_name">MC2020Lab</string>
     <string name="loginTitleTxt">Welcome to Assisted Reminder App 2020!</string>
     <string name="loginNameTxt">Your username</string>
+    <string name="loginPasswordTxt">Your password</string>
     <string name="loginBtn">Login</string>
     <string name="newUserBtn">New User?</string>
 
@@ -10,7 +11,7 @@
     <string name="title_activity_maps">Map</string>
 
     <string name="newUserTitle">Add your User information</string>
-    <string name="newUserNameTxt">Your username</string>
+    <string name="newUserNameTxt">Your username:</string>
     <string name="newUserPasswordTxt">Your password (pin with 4 numbers)</string>
     <string name="newUserPassword2Txt">Repeat your password (pin with 4 numbers)</string>
     <string name="newUserRegisterBtn">Register new user</string>
