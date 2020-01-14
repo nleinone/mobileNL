@@ -2,9 +2,20 @@ package com.example.mc2020lab;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,7 +28,64 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View v) {
 
         if (v.getId() == R.id.loginBtn) {
-            startActivity(new Intent(MainActivity.this, SchedulerActivity.class));
+
+            //Check if credentials are correct:
+            Gson gson = new Gson();
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
+
+
+            DialogInterface.OnClickListener buttonListener =
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    };
+
+            String storedHashMapString = pref.getString("user_information", "oopsDintWork");
+            java.lang.reflect.Type type = new TypeToken<HashMap<String, Map<String, String>>>(){}.getType();
+            HashMap<String, Map<String, String>> user_information = gson.fromJson(storedHashMapString, type);
+
+            //Get input
+            EditText username = findViewById(R.id.loginNameTxt);
+            EditText password = findViewById(R.id.loginPasswordTxt);
+
+            String loginname = username.getText().toString();
+            String loginPassword = password.getText().toString();
+
+            //Check the shared preference:
+            if(user_information.containsKey(loginname))
+            {
+                Map<String, String> password_dict = user_information.get(loginname);
+                String user_password = password_dict.get("password");
+
+                //Check if the password match:
+                if (loginPassword.equals(user_password))
+                {
+                    Toast.makeText(getApplicationContext(), "Logged in!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, SchedulerActivity.class));
+                }
+                else
+                {
+                    AlertDialog introDialog = new AlertDialog.Builder(this)
+                            .setTitle("Invalid password!")
+                            .setMessage("Password is incorrect!")
+                            .setPositiveButton("Ok", buttonListener)
+                            .setCancelable(false)
+                            .create();
+                    introDialog.show();
+                }
+
+            }
+            else
+            {
+                AlertDialog introDialog = new AlertDialog.Builder(this)
+                        .setTitle("Invalid Username!")
+                        .setMessage("Username does not exist!")
+                        .setPositiveButton("Ok", buttonListener)
+                        .setCancelable(false)
+                        .create();
+                introDialog.show();
+            }
 
         }
 

@@ -12,8 +12,8 @@
 
     <string name="newUserTitle">Add your User information</string>
     <string name="newUserNameTxt">Your username:</string>
-    <string name="newUserPasswordTxt">Your password (pin with 4 numbers)</string>
-    <string name="newUserPassword2Txt">Repeat your password (pin with 4 numbers)</string>
+    <string name="newUserPasswordTxt">Your password (pin with 4 characters)</string>
+    <string name="newUserPassword2Txt">Repeat your password (pin with 4 characters)</string>
     <string name="newUserRegisterBtn">Register new user</string>
 
     <string name="newReminderBtn">Add Reminder</string>
