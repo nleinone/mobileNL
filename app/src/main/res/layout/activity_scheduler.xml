@@ -36,7 +36,7 @@
     </TableLayout>
 
     <Button
-        android:id="@+id/addReminderBtn"
+        android:id="@+id/goToReminderBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="60dp"
@@ -44,6 +44,7 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="50dp"
         android:text="@string/addReminderBtn"
+        android:onClick="onClick"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/checkMapBtn"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,6 +59,7 @@
         android:layout_marginEnd="60dp"
         android:layout_marginBottom="50dp"
         android:text="@string/checkMapBtn"
+        android:onClick="onClick"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tableLayout"
