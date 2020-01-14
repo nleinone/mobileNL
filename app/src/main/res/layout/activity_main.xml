@@ -10,31 +10,35 @@
         android:id="@+id/loginNameTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="200dp"
         android:contentDescription="@string/loginNameTxt"
         android:ems="10"
+        android:hint="@string/loginNameTxt"
         android:inputType="textPersonName"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.636"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="@string/loginNameTxt" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/loginPasswordTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="40dp"
         android:contentDescription="@string/loginPasswordTxt"
         android:ems="10"
+        android:hint="@string/loginPasswordTxt"
         android:inputType="numberPassword"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.636"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/loginNameTxt"
-        app:layout_constraintVertical_bias="0.0"
-        tools:text="string/loginPasswordTxt" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/loginBtn"
@@ -67,6 +71,7 @@
         android:id="@+id/loginUserNameTxt0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="210dp"
         android:text="@string/loginNameTxt"
         app:layout_constraintEnd_toStartOf="@+id/loginNameTxt"
@@ -78,6 +83,7 @@
         android:id="@+id/loginPasswordTxt0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="70dp"
         android:text="@string/loginPasswordTxt"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -22,14 +22,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editText"
-        android:layout_width="211dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="200dp"
-        android:layout_marginEnd="70dp"
-        android:layout_marginBottom="300dp"
+        android:id="@+id/editTextDesc"
+        android:layout_width="214dp"
+        android:layout_height="57dp"
+        android:layout_marginTop="300dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="400dp"
         android:ems="10"
+        android:hint="Describe the reminder"
         android:inputType="textPersonName"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -39,12 +41,98 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="230dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginTop="210dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginBottom="300dp"
         android:text="@string/reminderTitleTxt"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editText"
+        app:layout_constraintEnd_toStartOf="@+id/editTextDesc"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextDate"
+        android:layout_width="32dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="370dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="310dp"
+        android:ems="10"
+        android:hint="h"
+        android:inputType="number"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/editText"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextTime"
+        android:layout_width="32dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="420dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="250dp"
+        android:ems="10"
+        android:hint="h"
+        android:inputType="number"
+        android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/editText4"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/dateTitleTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginEnd="30dp"
+        android:text="@string/dateTitleTxt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/editTextDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/timeTitleTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="170dp"
+        android:layout_marginEnd="30dp"
+        android:text="@string/timeTitleTxt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/editTextTime"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="32dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="370dp"
+        android:layout_marginEnd="170dp"
+        android:layout_marginBottom="310dp"
+        android:ems="10"
+        android:hint="min"
+        android:inputType="number"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editText4"
+        android:layout_width="32dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="420dp"
+        android:layout_marginEnd="170dp"
+        android:layout_marginBottom="250dp"
+        android:ems="10"
+        android:hint="min"
+        android:inputType="number"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
