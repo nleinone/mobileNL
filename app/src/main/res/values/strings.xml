@@ -22,4 +22,6 @@
     <string name="dateTitleTxt">Date:</string>
     <string name="timeTitleTxt">Time:</string>
 
+    <string name="clearDataBtn">Delete all Reminders</string>
+
 </resources>

@@ -3,11 +3,17 @@ package com.example.mc2020lab;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ActionBar;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -19,7 +25,7 @@ import java.util.HashMap;
 
 public class SchedulerActivity extends AppCompatActivity {
 
-    public void setTextToRow(String text, TableRow row, TableLayout table)
+    public void setTextToRow(String text, TableRow row, TableLayout table, String index)
     {
 
         row.setLayoutParams(new TableRow.LayoutParams(
@@ -28,8 +34,41 @@ public class SchedulerActivity extends AppCompatActivity {
 
         TextView descTxt=new TextView(this);
         descTxt.setText(text);
-        descTxt.setPadding(5, 5, 5, 5);
+        descTxt.setPadding(60, 5, 5, 5);
+
+        TextView t2=new TextView(this);
+        t2.setText("E");
+
+        Button deleteButton = new Button(this);
+        final String index_final = index;
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+
+                SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
+                pref.edit().remove("reminder" + index_final).apply();
+                checkAndLoadReminders();
+            }
+        });
+
+        //Delete button for reminder
+        deleteButton.setText("Delete");
+        //android.widget.LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,100); // 60 is height you can set it as u need
+
+        //deleteButton.setLayoutParams(lp);
+        //TextView t3=new TextView(this);
+        //t3.setText("D");
+        TextView t4=new TextView(this);
+        t4.setText(index);
+        Log.v("", index);
+
+        //descTxt.setPadding(60, 5, 5, 5);
+        //descTxt.setPadding(60, 5, 5, 5);
+        //descTxt.setPadding(60, 5, 5, 5);
+
         row.addView(descTxt);
+        row.addView(t2);
+        row.addView(deleteButton);
+        row.addView(t4);
         table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
     }
 
@@ -41,8 +80,10 @@ public class SchedulerActivity extends AppCompatActivity {
         table.removeAllViews();
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
-        for (int i = 1; i < 10; i++) {
+
+        for (int i = 1; i < 12; i++) {
             String str = Integer.toString(i);
+
             if (pref.contains("reminder" + str)) {
 
                 String storedHashMapString = pref.getString("reminder" + str, "oopsDintWork");
@@ -57,11 +98,17 @@ public class SchedulerActivity extends AppCompatActivity {
                 String hours = reminder_information.get("Hour");
                 String mins = reminder_information.get("Min");
 
+                SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
+                String index = Integer.toString(i);
+                //String event_counter = pref_counter.getString("Event_counter", "1");
+                //String event_counter_string =  event_counter + "Reminder";
+                //String index = pref.getString(event_counter_string, "");
+
                 //https://stackoverflow.com/questions/11342975/android-create-textviews-in-tablerows-programmatically
 
                 TableRow row1 = new TableRow(this);
 
-                setTextToRow(description, row1, table);
+                setTextToRow(description, row1, table, index);
                 //setTextToRow(days, table, row1);
                 //setTextToRow(months, table, row1);
                 //setTextToRow(hours, table, row1);
