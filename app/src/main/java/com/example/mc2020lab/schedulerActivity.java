@@ -5,14 +5,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -22,6 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class SchedulerActivity extends AppCompatActivity {
 
@@ -50,8 +54,111 @@ public class SchedulerActivity extends AppCompatActivity {
             }
         });
 
+        Button editButton = new Button(this);
+        final String index_final2 = index;
+        editButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+
+                //Create input box:
+                //Ref: https://stackoverflow.com/questions/18799216/how-to-make-a-edittext-box-in-a-dialog
+
+                //Create alert box:
+                AlertDialog.Builder alert = new AlertDialog.Builder(SchedulerActivity.this);
+
+                //Create viewGroup for multiple views in the alert box:
+
+                //ADD LAYOUTS FOR EVERY INFO:
+                Context context = SchedulerActivity.this;
+                LinearLayout layout = new LinearLayout(context);
+                layout.setOrientation(LinearLayout.VERTICAL);
+
+                //Create Description editText and TextView to alert box:
+                final EditText editTextDesct = new EditText(SchedulerActivity.this);
+                final TextView txDesc = new TextView((SchedulerActivity.this));
+                txDesc.setText("Description: ");
+
+                //Create Day editText and TextView to alert box:
+                final EditText editTextDay = new EditText(SchedulerActivity.this);
+                final TextView txDay = new TextView((SchedulerActivity.this));
+                txDesc.setText("Day: ");
+
+                //Create Month editText and TextView to alert box:
+                final EditText editTextMonth = new EditText(SchedulerActivity.this);
+                final TextView txMonth = new TextView((SchedulerActivity.this));
+                txDesc.setText("Month: ");
+
+                //Create Hour editText and TextView to alert box:
+                final EditText editTextHour = new EditText(SchedulerActivity.this);
+                final TextView txHour = new TextView((SchedulerActivity.this));
+                txDesc.setText("Hour: ");
+
+                //Create Hour editText and TextView to alert box:
+                final EditText editTextMin = new EditText(SchedulerActivity.this);
+                final TextView txMin = new TextView((SchedulerActivity.this));
+                txDesc.setText("Min: ");
+
+                layout.addView(txDesc);
+                layout.addView(editTextDesct);
+
+                layout.addView(txDay);
+                layout.addView(editTextDay);
+
+                layout.addView(txMonth);
+                layout.addView(editTextMonth);
+
+                layout.addView(txHour);
+                layout.addView(editTextHour);
+
+                layout.addView(txMin);
+                layout.addView(editTextMin);
+
+                //Set texts to alert box
+                alert.setMessage("Edit reminder values");
+                alert.setTitle("Edit");
+
+                alert.setView(layout);
+
+                //Create positive button
+                alert.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //Get string:
+                        String stringDescription = editTextDesct.getText().toString();
+                        //String stringDays;
+                        //String stringMonths;
+                        //String stringHours;
+                        //String stringMins;
+
+                        SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
+                        Map<String, String> reminderInfo = new HashMap<String, String>();
+                        reminderInfo.put("Description", stringDescription);
+                        //reminderInfo.put("Day", stringDays);
+                        //reminderInfo.put("Month", stringMonths);
+                        //reminderInfo.put("Hour", stringHours);
+                        //reminderInfo.put("Min", stringMins);
+
+                        Gson gson = new Gson();
+                        String reminderInfoJSON = gson.toJson(reminderInfo);
+                        pref.edit().putString("reminder" + index_final, reminderInfoJSON).apply();
+                        checkAndLoadReminders();
+                    }
+                });
+
+                //Create negative button
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+            }
+        });
+
+
         //Delete button for reminder
         deleteButton.setText("Delete");
+        editButton.setText("Edit");
+
         //android.widget.LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,100); // 60 is height you can set it as u need
 
         //deleteButton.setLayoutParams(lp);
@@ -59,14 +166,9 @@ public class SchedulerActivity extends AppCompatActivity {
         //t3.setText("D");
         TextView t4=new TextView(this);
         t4.setText(index);
-        Log.v("", index);
-
-        //descTxt.setPadding(60, 5, 5, 5);
-        //descTxt.setPadding(60, 5, 5, 5);
-        //descTxt.setPadding(60, 5, 5, 5);
 
         row.addView(descTxt);
-        row.addView(t2);
+        row.addView(editButton);
         row.addView(deleteButton);
         row.addView(t4);
         table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
