@@ -29,7 +29,18 @@ import java.util.Map;
 
 public class SchedulerActivity extends AppCompatActivity {
 
-    public void setTextToRow(String text, TableRow row, TableLayout table, String index)
+    public Map<String, String> changeReminderValue(String textInput, String reminderString, Map<String, String> reminderInfo)
+    {
+
+        if (!(textInput.equals("")))
+        {
+            reminderInfo.put(reminderString, textInput);
+        }
+        return reminderInfo;
+    }
+
+
+    public void setTextToRow(String description, String date, TableRow row, TableLayout table, String index)
     {
 
         row.setLayoutParams(new TableRow.LayoutParams(
@@ -37,11 +48,12 @@ public class SchedulerActivity extends AppCompatActivity {
                 TableRow.LayoutParams.WRAP_CONTENT));
 
         TextView descTxt=new TextView(this);
-        descTxt.setText(text);
+        descTxt.setText(description);
         descTxt.setPadding(60, 5, 5, 5);
 
-        TextView t2=new TextView(this);
-        t2.setText("E");
+        TextView tvDate = new TextView(this);
+        tvDate.setText(date);
+        tvDate.setPadding(5, 5, 5, 5);
 
         Button deleteButton = new Button(this);
         final String index_final = index;
@@ -61,6 +73,15 @@ public class SchedulerActivity extends AppCompatActivity {
 
                 //Create input box:
                 //Ref: https://stackoverflow.com/questions/18799216/how-to-make-a-edittext-box-in-a-dialog
+                SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
+                //Get current values for default
+                String current_remainderInfo = pref.getString("reminder" + index_final, "None");
+
+                //From json string to hashmap:
+                java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>() {
+                }.getType();
+                Gson gson = new Gson();
+                HashMap<String, String> reminder_information = gson.fromJson(current_remainderInfo, type);
 
                 //Create alert box:
                 AlertDialog.Builder alert = new AlertDialog.Builder(SchedulerActivity.this);
@@ -74,43 +95,14 @@ public class SchedulerActivity extends AppCompatActivity {
 
                 //Create Description editText and TextView to alert box:
                 final EditText editTextDesct = new EditText(SchedulerActivity.this);
+                editTextDesct.setText(reminder_information.get("Description"));
                 final TextView txDesc = new TextView((SchedulerActivity.this));
                 txDesc.setText("Description: ");
 
-                //Create Day editText and TextView to alert box:
-                final EditText editTextDay = new EditText(SchedulerActivity.this);
-                final TextView txDay = new TextView((SchedulerActivity.this));
-                txDesc.setText("Day: ");
-
-                //Create Month editText and TextView to alert box:
-                final EditText editTextMonth = new EditText(SchedulerActivity.this);
-                final TextView txMonth = new TextView((SchedulerActivity.this));
-                txDesc.setText("Month: ");
-
-                //Create Hour editText and TextView to alert box:
-                final EditText editTextHour = new EditText(SchedulerActivity.this);
-                final TextView txHour = new TextView((SchedulerActivity.this));
-                txDesc.setText("Hour: ");
-
-                //Create Hour editText and TextView to alert box:
-                final EditText editTextMin = new EditText(SchedulerActivity.this);
-                final TextView txMin = new TextView((SchedulerActivity.this));
-                txDesc.setText("Min: ");
 
                 layout.addView(txDesc);
                 layout.addView(editTextDesct);
 
-                layout.addView(txDay);
-                layout.addView(editTextDay);
-
-                layout.addView(txMonth);
-                layout.addView(editTextMonth);
-
-                layout.addView(txHour);
-                layout.addView(editTextHour);
-
-                layout.addView(txMin);
-                layout.addView(editTextMin);
 
                 //Set texts to alert box
                 alert.setMessage("Edit reminder values");
@@ -123,18 +115,12 @@ public class SchedulerActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         //Get string:
                         String stringDescription = editTextDesct.getText().toString();
-                        //String stringDays;
-                        //String stringMonths;
-                        //String stringHours;
-                        //String stringMins;
+
+                        Map<String, String> reminderInfo = new HashMap<String, String>();
+
+                        reminderInfo = changeReminderValue(stringDescription, "Description", reminderInfo);
 
                         SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
-                        Map<String, String> reminderInfo = new HashMap<String, String>();
-                        reminderInfo.put("Description", stringDescription);
-                        //reminderInfo.put("Day", stringDays);
-                        //reminderInfo.put("Month", stringMonths);
-                        //reminderInfo.put("Hour", stringHours);
-                        //reminderInfo.put("Min", stringMins);
 
                         Gson gson = new Gson();
                         String reminderInfoJSON = gson.toJson(reminderInfo);
@@ -159,18 +145,10 @@ public class SchedulerActivity extends AppCompatActivity {
         deleteButton.setText("Delete");
         editButton.setText("Edit");
 
-        //android.widget.LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,100); // 60 is height you can set it as u need
-
-        //deleteButton.setLayoutParams(lp);
-        //TextView t3=new TextView(this);
-        //t3.setText("D");
-        TextView t4=new TextView(this);
-        t4.setText(index);
-
         row.addView(descTxt);
+        row.addView(tvDate);
         row.addView(editButton);
         row.addView(deleteButton);
-        row.addView(t4);
         table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
     }
 
@@ -182,6 +160,15 @@ public class SchedulerActivity extends AppCompatActivity {
         table.removeAllViews();
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
+
+        //User information:
+        SharedPreferences pref_user = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
+        //Get current shared preference
+        String storedHashMapString = pref_user.getString("user_information", "oopsDintWork");
+        java.lang.reflect.Type type = new TypeToken<HashMap<String, Map<String, String>>>(){}.getType();
+        HashMap<String, Map<String, String>> user_information = gson.fromJson(storedHashMapString, type);
+
+        String user_name = user_information.get();
 
         for (int i = 1; i < 12; i++) {
             String str = Integer.toString(i);
@@ -195,22 +182,16 @@ public class SchedulerActivity extends AppCompatActivity {
                 HashMap<String, String> reminder_information = gson.fromJson(storedHashMapString, type);
 
                 String description = reminder_information.get("Description");
-                String days = reminder_information.get("Day");
-                String months = reminder_information.get("Month");
-                String hours = reminder_information.get("Hour");
-                String mins = reminder_information.get("Min");
+                String date = reminder_information.get("Date");
 
                 SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
                 String index = Integer.toString(i);
-                //String event_counter = pref_counter.getString("Event_counter", "1");
-                //String event_counter_string =  event_counter + "Reminder";
-                //String index = pref.getString(event_counter_string, "");
 
                 //https://stackoverflow.com/questions/11342975/android-create-textviews-in-tablerows-programmatically
 
                 TableRow row1 = new TableRow(this);
 
-                setTextToRow(description, row1, table, index);
+                setTextToRow(description, date, row1, table, index);
                 //setTextToRow(days, table, row1);
                 //setTextToRow(months, table, row1);
                 //setTextToRow(hours, table, row1);

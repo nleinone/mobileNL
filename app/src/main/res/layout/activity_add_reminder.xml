@@ -66,90 +66,81 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/editTextDays"
-        android:layout_width="32dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="370dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="310dp"
-        android:ems="10"
-        android:hint="Days"
-        android:inputType="number"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editTextMonth"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editTextHours"
-        android:layout_width="32dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="420dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="250dp"
-        android:ems="10"
-        android:hint="h"
-        android:inputType="number"
-        android:textSize="14dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editTextMin"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/dateTitleTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="60dp"
         android:layout_marginTop="70dp"
-        android:layout_marginEnd="30dp"
         android:text="@string/dateTitleTxt"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editTextDays"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.504" />
 
     <TextView
         android:id="@+id/timeTitleTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="60dp"
         android:layout_marginTop="170dp"
-        android:layout_marginEnd="30dp"
         android:text="@string/timeTitleTxt"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editTextHours"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/editTextMonth"
-        android:layout_width="32dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="370dp"
-        android:layout_marginEnd="170dp"
-        android:layout_marginBottom="310dp"
-        android:ems="10"
-        android:hint="Month"
-        android:inputType="number"
-        android:textSize="14sp"
+    <Button
+        android:id="@+id/selectDateBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Date"
+        android:onClick="onClick"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.553" />
 
-    <EditText
-        android:id="@+id/editTextMin"
-        android:layout_width="32dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="420dp"
-        android:layout_marginEnd="170dp"
-        android:layout_marginBottom="250dp"
-        android:ems="10"
-        android:hint="min"
-        android:inputType="number"
-        android:textSize="14sp"
+    <Button
+        android:id="@+id/selectTimeBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Time"
+        android:onClick="onClick"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/selectDateBtn"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textViewDay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="250dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="30dp"
+        android:text='Press "Select Date"'
+        app:layout_constraintBottom_toTopOf="@+id/textViewHour"
+        app:layout_constraintEnd_toStartOf="@+id/selectDateBtn"
+        app:layout_constraintHorizontal_bias="0.74"
+        app:layout_constraintStart_toEndOf="@+id/dateTitleTxt"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/textViewHour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="100dp"
+        android:text='Press "Select Time"'
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/selectTimeBtn"
+        app:layout_constraintHorizontal_bias="0.746"
+        app:layout_constraintStart_toEndOf="@+id/timeTitleTxt"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.619" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

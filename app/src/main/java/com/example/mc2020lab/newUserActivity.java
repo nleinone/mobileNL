@@ -51,7 +51,6 @@ public class NewUserActivity extends AppCompatActivity {
 
             Gson gson = new Gson();
             SharedPreferences pref = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
-
             //Get current shared preference
             String storedHashMapString = pref.getString("user_information", "oopsDintWork");
             java.lang.reflect.Type type = new TypeToken<HashMap<String, Map<String, String>>>(){}.getType();
