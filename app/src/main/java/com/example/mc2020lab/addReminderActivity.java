@@ -57,6 +57,8 @@ public class AddReminderActivity extends AppCompatActivity {
     public void onClick(View v) {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
         SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
+        SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
+        String login_name = login_name_pref.getString("loginName", "NoName");
 
         final Map<String, String> reminderInfo = new HashMap<String, String>();
 
@@ -77,7 +79,8 @@ public class AddReminderActivity extends AppCompatActivity {
                         @Override
                         public void onDateSet(DatePicker datePicker, int year, int month, int day) {
 
-                            tvDate.setText(day + "/" + month + "/" + year);
+
+                            tvDate.setText(day + "/" + month + 1 + "/" + year);
                             String stringDate = tvDate.getText().toString();
 
                             SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
@@ -152,7 +155,7 @@ public class AddReminderActivity extends AppCompatActivity {
             reminderInfo.put("Date", stringDate);
 
             String reminderInfoJSON = gson.toJson(reminderInfo);
-            pref.edit().putString("reminder" + counter, reminderInfoJSON).apply();
+            pref.edit().putString(login_name + "_" + "reminder" + counter, reminderInfoJSON).apply();
 
             if(canCreateReminder)
             {

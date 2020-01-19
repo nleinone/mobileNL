@@ -55,13 +55,16 @@ public class SchedulerActivity extends AppCompatActivity {
         tvDate.setText(date);
         tvDate.setPadding(5, 5, 5, 5);
 
+        SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
+        final String login_name = login_name_pref.getString("loginName", "NoName");
+
         Button deleteButton = new Button(this);
         final String index_final = index;
         deleteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
 
                 SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
-                pref.edit().remove("reminder" + index_final).apply();
+                pref.edit().remove(login_name + "_" + "reminder" + index_final).apply();
                 checkAndLoadReminders();
             }
         });
@@ -75,7 +78,7 @@ public class SchedulerActivity extends AppCompatActivity {
                 //Ref: https://stackoverflow.com/questions/18799216/how-to-make-a-edittext-box-in-a-dialog
                 SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
                 //Get current values for default
-                String current_remainderInfo = pref.getString("reminder" + index_final, "None");
+                String current_remainderInfo = pref.getString(login_name + "_" + "reminder" + index_final, "None");
 
                 //From json string to hashmap:
                 java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>() {
@@ -124,7 +127,7 @@ public class SchedulerActivity extends AppCompatActivity {
 
                         Gson gson = new Gson();
                         String reminderInfoJSON = gson.toJson(reminderInfo);
-                        pref.edit().putString("reminder" + index_final, reminderInfoJSON).apply();
+                        pref.edit().putString(login_name + "_" + "reminder" + index_final, reminderInfoJSON).apply();
                         checkAndLoadReminders();
                     }
                 });
@@ -160,22 +163,15 @@ public class SchedulerActivity extends AppCompatActivity {
         table.removeAllViews();
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
-
-        //User information:
-        SharedPreferences pref_user = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
-        //Get current shared preference
-        String storedHashMapString = pref_user.getString("user_information", "oopsDintWork");
-        java.lang.reflect.Type type = new TypeToken<HashMap<String, Map<String, String>>>(){}.getType();
-        HashMap<String, Map<String, String>> user_information = gson.fromJson(storedHashMapString, type);
-
-        String user_name = user_information.get();
+        SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
+        String login_name = login_name_pref.getString("loginName", "NoName");
 
         for (int i = 1; i < 12; i++) {
             String str = Integer.toString(i);
 
-            if (pref.contains("reminder" + str)) {
+            if (pref.contains(login_name + "_" + "reminder" + str)) {
 
-                String storedHashMapString = pref.getString("reminder" + str, "oopsDintWork");
+                String storedHashMapString = pref.getString(login_name + "_" + "reminder" + str, "oopsDintWork");
                 java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>() {
                 }.getType();
 
