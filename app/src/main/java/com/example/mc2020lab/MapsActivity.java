@@ -4,11 +4,14 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -30,13 +33,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
 
+    private void LocationUpdater(){
+        System.out.println("TESTI9");
+        startService(new Intent(this, LocationTracker.class));
+        //Toast notification about location being tracked!
+        Toast.makeText(this, "Your GPS location is now shared!", Toast.LENGTH_SHORT).show();
+    }
+
     public void getOwnCoordinates(int permission)
     {
         LocationRequest request = new LocationRequest();
         request.setInterval(1000);
-
+        Log.v("MAPS", "t1");
         if (permission == PackageManager.PERMISSION_GRANTED) {
 
+            Log.v("MAPS", "Granted");
             FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
             client.requestLocationUpdates(request, new LocationCallback() {
                 @Override
@@ -44,6 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         Location location = locationResult.getLastLocation();
                         if (location != null) {
+                            Log.v("MAPS", "t2");
                             //Save own coordinates to pref:
                             double Longitude = location.getLongitude();
                             double Latitude = location.getLatitude();
@@ -51,8 +63,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             String stringLongitude = Double.toString(Longitude);
                             String stringLatitude = Double.toString(Latitude);
 
+                            Log.v("MAPS", "longitude");
+                            Log.v("MAPS", "latitude");
+
                             SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
-                            String loginName = login_name_pref.getString("LoginName", "No name");
+                            String loginName = login_name_pref.getString("loginName", "No name");
 
                             SharedPreferences pref = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
 
@@ -76,6 +91,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        //int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        //getOwnCoordinates(permission);
+
     }
 
     /**
@@ -92,17 +110,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         //Check permission
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        //int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
 
         //Get current location
-        getOwnCoordinates(permission);
+        //getOwnCoordinates(permission);
+        LocationUpdater();
 
         SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
-        String loginName = login_name_pref.getString("LoginName", "No name");
+        String loginName = login_name_pref.getString("loginName", "No name");
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
         String longitude = pref.getString(loginName + "_" + "longitude", "No longitude");
         String latitude = pref.getString(loginName + "_" + "latitude", "No latitude");
+
+        Log.v("Name", loginName);
+        Log.v("Longitude", longitude);
+        Log.v("Latitude", longitude);
+
 
         Double doubleLongitude = Double.parseDouble(longitude);
         Double doubleLatitude = Double.parseDouble(latitude);

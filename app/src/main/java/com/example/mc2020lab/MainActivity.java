@@ -92,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
                         SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
                         login_name_pref.edit().putString("loginName", loginname).apply();
 
+                        //Initialize default location info:
+                        String default_lat = "25.459664828";
+                        String default_long = "65.055499778";
+                        pref.edit().putString(loginname + "_" + "longitude", default_long).apply();
+                        pref.edit().putString(loginname + "_" + "latitude", default_lat).apply();
                         //user_information.put(loginname, password_dict);
 
                         //Turn HashMap to Json string, insert it to shared pref:

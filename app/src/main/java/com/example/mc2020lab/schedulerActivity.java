@@ -1,7 +1,12 @@
 package com.example.mc2020lab;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.maps.GoogleMap;
+
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,6 +16,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
@@ -25,6 +31,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -32,7 +39,10 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class SchedulerActivity extends AppCompatActivity {
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     public Map<String, String> changeReminderValue(String textInput, String reminderString, Map<String, String> reminderInfo)
     {
@@ -302,11 +312,30 @@ public class SchedulerActivity extends AppCompatActivity {
         }
     }
 
+    //If location permission is not enabled, ask it
+    private void enableLocationIfGranted() {
+        //If fine location access is NOT "PERMISSION GRANTED"...
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // SHOW MESSAGE FOR DENYING THE PERMISSION!
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+                finish();
+            }
+            else{
+                //...Request permission
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scheduler);
 
+        //Check location permission
+        enableLocationIfGranted();
         checkAndLoadReminders();
     }
 
