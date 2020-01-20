@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.gson.Gson;
 
 import org.w3c.dom.Text;
@@ -120,6 +122,21 @@ public class AddReminderActivity extends AppCompatActivity {
 
         }
 
+        if (v.getId() == R.id.selectLocationBtn)
+        {
+            TextView tvLoc = findViewById(R.id.tvLocation);
+
+            //Get location with placePicker
+
+
+            String stringLoc = "";
+            tvLoc.setText(stringLoc);
+            SharedPreferences pref_time = getApplicationContext().getSharedPreferences("pref_loc", 0); // 0 - for private mode
+            pref_time.edit().putString("Location", stringLoc).apply();
+
+        }
+
+
         if (v.getId() == R.id.clearDataBtn) {
 
             pref.edit().clear().apply();
@@ -166,16 +183,20 @@ public class AddReminderActivity extends AppCompatActivity {
             EditText EditTextDescription = findViewById(R.id.editTextDesc);
             SharedPreferences pref_date = getApplicationContext().getSharedPreferences("pref_date", 0); // 0 - for private mode
             SharedPreferences pref_time = getApplicationContext().getSharedPreferences("pref_time", 0); // 0 - for private mode
+            SharedPreferences pref_loc = getApplicationContext().getSharedPreferences("pref_time", 0); // 0 - for private mode
+
 
             String stringTime = pref_time.getString("Time", "No time");
             String stringDescription = EditTextDescription.getText().toString();
             String stringDate = pref_date.getString("Date", "No date");
+            String stringLoc = pref_date.getString("Location", "No loc");
 
             String counter = pref_counter.getString("Event_counter", "1");
 
             reminderInfo.put("Description", stringDescription);
             reminderInfo.put("Date", stringDate);
             reminderInfo.put("Time", stringTime);
+            reminderInfo.put("Location", stringLoc);
 
             String reminderInfoJSON = gson.toJson(reminderInfo);
             pref.edit().putString(login_name + "_" + "reminder" + counter, reminderInfoJSON).apply();
