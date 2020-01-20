@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.google.gson.Gson;
 
@@ -83,7 +85,6 @@ public class AddReminderActivity extends AppCompatActivity {
                             tvDate.setText(day + "/" + month + 1 + "/" + year);
                             String stringDate = tvDate.getText().toString();
 
-                            SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
                             SharedPreferences pref_date = getApplicationContext().getSharedPreferences("pref_date", 0); // 0 - for private mode
 
                             pref_date.edit().putString("Date", stringDate).apply();
@@ -95,8 +96,28 @@ public class AddReminderActivity extends AppCompatActivity {
 
         if (v.getId() == R.id.selectTimeBtn)
         {
-            TextView tvHours = findViewById(R.id.textViewHour);
-            //TextView tvMins = findViewById(R.id.textViewMin);
+            //REF: https://stackoverflow.com/questions/17901946/timepicker-dialog-from-clicking-edittext
+            final TextView tvHours = findViewById(R.id.textViewHour);
+
+            // TODO Auto-generated method stub
+            Calendar mcurrentTime = Calendar.getInstance();
+            int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+            int minute = mcurrentTime.get(Calendar.MINUTE);
+            TimePickerDialog mTimePicker;
+            mTimePicker = new TimePickerDialog(AddReminderActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                    String stringTime = selectedHour + ":" + selectedMinute;
+                    tvHours.setText(stringTime);
+                    SharedPreferences pref_time = getApplicationContext().getSharedPreferences("pref_time", 0); // 0 - for private mode
+                    pref_time.edit().putString("Time", stringTime).apply();
+
+
+                }
+            }, hour, minute, true);//Yes 24 hour time
+            mTimePicker.setTitle("Select Time");
+            mTimePicker.show();
+
         }
 
         if (v.getId() == R.id.clearDataBtn) {
@@ -143,16 +164,18 @@ public class AddReminderActivity extends AppCompatActivity {
             increaseEventCounter(pref_counter);
 
             EditText EditTextDescription = findViewById(R.id.editTextDesc);
-
-
             SharedPreferences pref_date = getApplicationContext().getSharedPreferences("pref_date", 0); // 0 - for private mode
+            SharedPreferences pref_time = getApplicationContext().getSharedPreferences("pref_time", 0); // 0 - for private mode
 
+            String stringTime = pref_time.getString("Time", "No time");
             String stringDescription = EditTextDescription.getText().toString();
             String stringDate = pref_date.getString("Date", "No date");
+
             String counter = pref_counter.getString("Event_counter", "1");
 
             reminderInfo.put("Description", stringDescription);
             reminderInfo.put("Date", stringDate);
+            reminderInfo.put("Time", stringTime);
 
             String reminderInfoJSON = gson.toJson(reminderInfo);
             pref.edit().putString(login_name + "_" + "reminder" + counter, reminderInfoJSON).apply();

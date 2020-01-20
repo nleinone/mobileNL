@@ -6,6 +6,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -67,9 +69,31 @@ public class SchedulerActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    public void openClock(TextView tvTitleTime)
+    {
+        //REF: https://stackoverflow.com/questions/17901946/timepicker-dialog-from-clicking-edittext
+        final TextView tvTitleTimeFinal = tvTitleTime;
 
+        // TODO Auto-generated method stub
+        Calendar mcurrentTime = Calendar.getInstance();
+        int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+        int minute = mcurrentTime.get(Calendar.MINUTE);
+        TimePickerDialog mTimePicker;
+        mTimePicker = new TimePickerDialog(SchedulerActivity.this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                String stringTime = selectedHour + ":" + selectedMinute;
+                tvTitleTimeFinal.setText(stringTime);
+                SharedPreferences pref_time = getApplicationContext().getSharedPreferences("pref_time", 0); // 0 - for private mode
+                pref_time.edit().putString("Time", stringTime).apply();
 
-    public void setTextToRow(String description, String date, TableRow row, TableLayout table, String index)
+            }
+        }, hour, minute, true);//Yes 24 hour time
+        mTimePicker.setTitle("Select Time");
+        mTimePicker.show();
+    }
+
+    public void setTextToRow(String description, String date, String time, TableRow row, TableLayout table, String index)
     {
 
         row.setLayoutParams(new TableRow.LayoutParams(
@@ -83,6 +107,10 @@ public class SchedulerActivity extends AppCompatActivity {
         TextView tvDate = new TextView(this);
         tvDate.setText(date);
         tvDate.setPadding(5, 5, 5, 5);
+
+        TextView tvTime = new TextView(this);
+        tvTime.setText(time);
+        tvTime.setPadding(5, 5, 5, 5);
 
         SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
         final String login_name = login_name_pref.getString("loginName", "NoName");
@@ -153,8 +181,30 @@ public class SchedulerActivity extends AppCompatActivity {
                         openCalendar(tvDate);
                     }
                 });
-
                 layout.addView(dateBtn);
+
+                //Add time edit:
+                //Text
+                final TextView tvTitleTime = new TextView(SchedulerActivity.this);
+                tvTitleDate.setText("Time:");
+                layout.addView(tvTitleTime);
+
+                final TextView tvTime = new TextView(SchedulerActivity.this);
+                tvTime.setText(reminder_information.get("Time"));
+                layout.addView(tvTime);
+                //Button
+                Button timeBtn = new Button(SchedulerActivity.this);
+                timeBtn.setText("Change time");
+
+                timeBtn.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        openClock(tvTime);
+                    }
+                });
+                layout.addView(timeBtn);
+
 
                 //Set texts to alert box
                 alert.setMessage("Edit reminder values");
@@ -168,11 +218,13 @@ public class SchedulerActivity extends AppCompatActivity {
                         //Get string:
                         String stringDescription = editTextDesct.getText().toString();
                         String stringDate = tvDate.getText().toString();
+                        String stringTime = tvTime.getText().toString();
 
                         Map<String, String> reminderInfo = new HashMap<String, String>();
 
                         reminderInfo = changeReminderValue(stringDescription, "Description", reminderInfo);
                         reminderInfo = changeReminderValue(stringDate, "Date", reminderInfo);
+                        reminderInfo = changeReminderValue(stringTime, "Time", reminderInfo);
 
                         SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
 
@@ -201,6 +253,7 @@ public class SchedulerActivity extends AppCompatActivity {
 
         row.addView(descTxt);
         row.addView(tvDate);
+        row.addView(tvTime);
         row.addView(editButton);
         row.addView(deleteButton);
         table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
@@ -228,8 +281,10 @@ public class SchedulerActivity extends AppCompatActivity {
 
                 HashMap<String, String> reminder_information = gson.fromJson(storedHashMapString, type);
 
+                //Load reminder information
                 String description = reminder_information.get("Description");
                 String date = reminder_information.get("Date");
+                String time = reminder_information.get("Time");
 
                 SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
                 String index = Integer.toString(i);
@@ -238,7 +293,7 @@ public class SchedulerActivity extends AppCompatActivity {
 
                 TableRow row1 = new TableRow(this);
 
-                setTextToRow(description, date, row1, table, index);
+                setTextToRow(description, date, time, row1, table, index);
                 //setTextToRow(days, table, row1);
                 //setTextToRow(months, table, row1);
                 //setTextToRow(hours, table, row1);
