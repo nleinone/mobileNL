@@ -7,8 +7,12 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -29,55 +33,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
 import java.util.Locale;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
 
     private GoogleMap mMap;
 
-    private void LocationUpdater(){
-        System.out.println("TESTI9");
-        startService(new Intent(this, LocationTracker.class));
-        //Toast notification about location being tracked!
-        Toast.makeText(this, "Your GPS location is now shared!", Toast.LENGTH_SHORT).show();
-    }
-
-    public void getOwnCoordinates(int permission)
-    {
-        LocationRequest request = new LocationRequest();
-        request.setInterval(1000);
-        Log.v("MAPS", "t1");
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-
-            Log.v("MAPS", "Granted");
-            FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
-            client.requestLocationUpdates(request, new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-
-                        Location location = locationResult.getLastLocation();
-                        if (location != null) {
-                            Log.v("MAPS", "t2");
-                            //Save own coordinates to pref:
-                            double Longitude = location.getLongitude();
-                            double Latitude = location.getLatitude();
-
-                            String stringLongitude = Double.toString(Longitude);
-                            String stringLatitude = Double.toString(Latitude);
-
-                            Log.v("MAPS", "longitude");
-                            Log.v("MAPS", "latitude");
-
-                            SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
-                            String loginName = login_name_pref.getString("loginName", "No name");
-
-                            SharedPreferences pref = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
-
-                            pref.edit().putString(loginName + "_" + "longitude", stringLongitude).apply();
-                            pref.edit().putString(loginName + "_" + "latitude", stringLatitude).apply();
-                        }
-                    }
-            }, null);
-        }
-    }
+    final static int PERMISSION_ALL = 1;
+    final static String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION,
+                                        Manifest.permission.ACCESS_FINE_LOCATION};
+    MarkerOptions mo;
+    Marker marker;
+    LocationManager locationManager;
 
     //REF: https://mobikul.com/picking-location-with-map-pin-using-google-maps-in-android/
     //REF: https://abhiandroid.com/programming/googlemaps
@@ -91,9 +56,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        //getOwnCoordinates(permission);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        mo = new MarkerOptions().position(new LatLng(0,0)).title("My current location");
 
+        //Add permission test if failing
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            requestPermissions(PERMISSIONS, PERMISSION_ALL);
+        }
+        else
+        {
+             requestLocation();
+        }
     }
 
     /**
@@ -108,13 +82,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        //Check permission
-        //int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-
-        //Get current location
-        //getOwnCoordinates(permission);
-        LocationUpdater();
 
         SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
         String loginName = login_name_pref.getString("loginName", "No name");
@@ -158,6 +125,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
+
+    }
+
+    //REF: https://www.thecodecity.com/2017/03/location-tracker-android-app-complete.html
+    public void requestLocation()
+    {
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+        String provider = locationManager.getBestProvider(criteria, true);
+        //locationManager.requestLocationUpdates(provider, 10000, 10, true);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
 
     }
 }
