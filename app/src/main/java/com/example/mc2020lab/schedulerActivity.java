@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -24,6 +26,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +41,32 @@ public class SchedulerActivity extends AppCompatActivity {
         }
         return reminderInfo;
     }
+
+    public void openCalendar(TextView tvDate)
+    {
+
+        final TextView tvDateFinal = tvDate;
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+
+        //REF: https://www.codingdemos.com/android-datepicker-button/
+        DatePickerDialog datePickerDialog = new DatePickerDialog(SchedulerActivity.this,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+
+                        tvDateFinal.setText(day + "/" + month + 1 + "/" + year);
+                        String stringDate = tvDateFinal.getText().toString();
+                        SharedPreferences pref_date = getApplicationContext().getSharedPreferences("pref_date", 0); // 0 - for private mode
+                        pref_date.edit().putString("Date", stringDate).apply();
+
+                    }
+                }, year, month, dayOfMonth);
+        datePickerDialog.show();
+    }
+
 
 
     public void setTextToRow(String description, String date, TableRow row, TableLayout table, String index)
@@ -101,11 +130,31 @@ public class SchedulerActivity extends AppCompatActivity {
                 editTextDesct.setText(reminder_information.get("Description"));
                 final TextView txDesc = new TextView((SchedulerActivity.this));
                 txDesc.setText("Description: ");
-
-
                 layout.addView(txDesc);
                 layout.addView(editTextDesct);
 
+                //Set calendar button to edit box:
+                //Text
+                final TextView tvTitleDate = new TextView(SchedulerActivity.this);
+                tvTitleDate.setText("Date:");
+                layout.addView(tvTitleDate);
+
+                final TextView tvDate = new TextView(SchedulerActivity.this);
+                tvDate.setText(reminder_information.get("Date"));
+                layout.addView(tvDate);
+                //Button
+                Button dateBtn = new Button(SchedulerActivity.this);
+                dateBtn.setText("Change date");
+
+                dateBtn.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        openCalendar(tvDate);
+                    }
+                });
+
+                layout.addView(dateBtn);
 
                 //Set texts to alert box
                 alert.setMessage("Edit reminder values");
@@ -118,10 +167,12 @@ public class SchedulerActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         //Get string:
                         String stringDescription = editTextDesct.getText().toString();
+                        String stringDate = tvDate.getText().toString();
 
                         Map<String, String> reminderInfo = new HashMap<String, String>();
 
                         reminderInfo = changeReminderValue(stringDescription, "Description", reminderInfo);
+                        reminderInfo = changeReminderValue(stringDate, "Date", reminderInfo);
 
                         SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
 
