@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,6 +41,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
 
+    boolean firstLoad = true;
     final static int PERMISSION_ALL = 1;
     final static String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION,
                                         Manifest.permission.ACCESS_FINE_LOCATION};
@@ -86,6 +88,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         marker = mMap.addMarker(mo);
 
+        //Touch functionalities:
+        //REF: https://stackoverflow.com/questions/25153344/getting-coordinates-of-location-touch-on-google-map-in-android
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
+                Log.d("DEBUG","Map clicked [" + point.latitude + " / " + point.longitude + "]");
+                //Do your stuff with LatLng here
+                //Then pass LatLng to other activity
+            }
+        });
+
+
         SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
         String loginName = login_name_pref.getString("loginName", "No name");
 
@@ -101,35 +115,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Double doubleLongitude = Double.parseDouble(longitude);
         Double doubleLatitude = Double.parseDouble(latitude);
 
-        //Move camera to current location
-        //REF: https://github.com/nleinone/CrowdSourcer/blob/master/app/src/main/java/com/example/nikol/growdsourcer/LocationTracker.java
-        //LatLng current_location = new LatLng(doubleLatitude, doubleLongitude);
-        //mMap.addMarker(new MarkerOptions().position(current_location).title("Current position marker"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(current_location));
+        //Zoom map intially:
 
-        /*
-        //Marker drag:
-        googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDragStart(Marker marker) {
-            }
-
-            @Override
-            public void onMarkerDrag(Marker marker) {
-            }
-
-            @Override
-            public void onMarkerDragEnd(Marker marker) {
-                LatLng latLng = marker.getPosition();
-                Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
-                try {
-                    android.location.Address address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1).get(0);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        */
     }
 
 
@@ -239,8 +226,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String stringCoordinates = myCoordinates.toString();
         Log.v("Current Location:", stringCoordinates);
         marker.setPosition(myCoordinates);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myCoordinates));
 
+        if(firstLoad = true)
+        {
+            float zoom = 16.0f;
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myCoordinates, zoom));
+            firstLoad = false;
+        }
+        else
+        {
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(myCoordinates));
+        }
     }
 
     @Override
@@ -257,4 +253,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onProviderDisabled(String s) {
 
     }
+
+
+
 }
