@@ -103,7 +103,7 @@ public class SchedulerActivity extends AppCompatActivity {
         mTimePicker.show();
     }
 
-    public void setTextToRow(String description, String date, String time, TableRow row, TableLayout table, String index)
+    public void setTextToRow(String description, String date, String time, String placeName, TableRow row, TableLayout table, String index)
     {
 
         row.setLayoutParams(new TableRow.LayoutParams(
@@ -121,6 +121,10 @@ public class SchedulerActivity extends AppCompatActivity {
         TextView tvTime = new TextView(this);
         tvTime.setText(time);
         tvTime.setPadding(5, 5, 5, 5);
+
+        TextView tvLocation = new TextView(this);
+        tvLocation.setText(placeName);
+        tvLocation.setPadding(5, 5, 5, 5);
 
         SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
         final String login_name = login_name_pref.getString("loginName", "NoName");
@@ -264,6 +268,7 @@ public class SchedulerActivity extends AppCompatActivity {
         row.addView(descTxt);
         row.addView(tvDate);
         row.addView(tvTime);
+        row.addView(tvLocation);
         row.addView(editButton);
         row.addView(deleteButton);
         table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
@@ -292,9 +297,24 @@ public class SchedulerActivity extends AppCompatActivity {
                 HashMap<String, String> reminder_information = gson.fromJson(storedHashMapString, type);
 
                 //Load reminder information
+
+                String longitude = reminder_information.get("Longitude");
+                String latitude = reminder_information.get("Latitude");
+                String index_counter = reminder_information.get("Index");
                 String description = reminder_information.get("Description");
                 String date = reminder_information.get("Date");
                 String time = reminder_information.get("Time");
+                String placeName = reminder_information.get("Location");
+
+                //LOGGED REMINDER INFORMATION:
+                Log.d("REMINDERTAG", "Reminder: " + index_counter);
+                Log.d("REMINDERTAG", "Description: " + description);
+                Log.d("REMINDERTAG", "Date: " + date);
+                Log.d("REMINDERTAG", "Time: " + time);
+                Log.d("REMINDERTAG", "Location: " + placeName);
+                Log.d("REMINDERTAG", "Longitude: " + longitude);
+                Log.d("REMINDERTAG", "Latitude: " + latitude);
+
                 //Location info format:
                 // "reminder" + "_" + stringLocationIndex + "_" + loginNameFinal +
                 //    "_" + stringDescription + "_" + stringLongitude + "_" + stringLatitude
@@ -308,7 +328,7 @@ public class SchedulerActivity extends AppCompatActivity {
 
                 TableRow row1 = new TableRow(this);
 
-                setTextToRow(description, date, time, row1, table, index);
+                setTextToRow(description, date, time, placeName, row1, table, index);
                 //setTextToRow(days, table, row1);
                 //setTextToRow(months, table, row1);
                 //setTextToRow(hours, table, row1);
@@ -353,12 +373,9 @@ public class SchedulerActivity extends AppCompatActivity {
 
         if (v.getId() == R.id.goToReminderBtn) {
             startActivity(new Intent(SchedulerActivity.this, AddReminderActivity.class));
-
         }
-
-        else if (v.getId() == R.id.checkMapBtn) {
+        if (v.getId() == R.id.checkMapBtn) {
             startActivity(new Intent(SchedulerActivity.this, MapsActivity.class));
-
         }
     }
 }

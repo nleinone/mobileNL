@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -39,6 +40,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -108,11 +111,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         placeNameWindow.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
-
                 Log.d("DEBUG","ow2");
                 Map<String, String> reminderInfo = new HashMap<String, String>();
                 //Get string:
                 String stringDescription = editTextPlaceName.getText().toString();
+
+                //setContentView(R.layout.activity_maps);
 
                 reminderInfo = changeReminderValue(stringDescription, "Location", reminderInfo);
 
@@ -123,8 +127,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 Gson gson = new Gson();
                 String reminderInfoJSON = gson.toJson(reminderInfo);
-                location.edit().putString("reminder" + "_" + stringLocationIndex + "_" + loginNameFinal +
-                                        "_" + stringDescription + "_" + stringLongitude + "_" + stringLatitude, reminderInfoJSON).apply();
+                location.edit().putString("Location_package", "reminder" + "_" + stringLocationIndex + "_" + loginNameFinal +
+                        "_" + stringDescription + "_" + stringLongitude + "_" + stringLatitude).apply();
+
                 finish();
             }
         });

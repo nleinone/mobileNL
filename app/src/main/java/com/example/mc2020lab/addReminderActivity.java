@@ -58,6 +58,22 @@ public class AddReminderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_reminder);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        TextView tvLocation = findViewById(R.id.tvLocation);
+        SharedPreferences pref_location = getApplicationContext().getSharedPreferences("Location", 0);
+        String location_package = pref_location.getString("Location_package", "Press 'Open Map'");
+        String[] location_info_list = location_package.split("_");
+        String placeName = location_info_list[3];
+
+        Log.v("test", placeName);
+        tvLocation.setText(placeName);
+
+    }
+
     public void onClick(View v) {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
         SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
@@ -124,18 +140,9 @@ public class AddReminderActivity extends AppCompatActivity {
 
         if (v.getId() == R.id.selectLocationBtn)
         {
-            TextView tvLoc = findViewById(R.id.tvLocation);
-
-            //Get location with placePicker
-
-
-            String stringLoc = "";
-            tvLoc.setText(stringLoc);
-            SharedPreferences pref_time = getApplicationContext().getSharedPreferences("pref_loc", 0); // 0 - for private mode
-            pref_time.edit().putString("Location", stringLoc).apply();
-
+            Log.v("Addrem", "t1");
+            startActivity(new Intent(AddReminderActivity.this, MapsActivity.class));
         }
-
 
         if (v.getId() == R.id.clearDataBtn) {
 
@@ -183,21 +190,31 @@ public class AddReminderActivity extends AppCompatActivity {
             EditText EditTextDescription = findViewById(R.id.editTextDesc);
             SharedPreferences pref_date = getApplicationContext().getSharedPreferences("pref_date", 0); // 0 - for private mode
             SharedPreferences pref_time = getApplicationContext().getSharedPreferences("pref_time", 0); // 0 - for private mode
-            SharedPreferences pref_location = getApplicationContext().getSharedPreferences("location", 0);
+            SharedPreferences pref_location = getApplicationContext().getSharedPreferences("Location", 0);
 
             //Get location package, unpack it
+            String location_package = pref_location.getString("Location_package", "no location");
+            String[] location_info_list = location_package.split("_");
+            //"reminder" + "_" + stringLocationIndex + "_" + loginNameFinal +
+            //"_" + stringDescription + "_" + stringLongitude + "_" + stringLatitude
+            String placeName = location_info_list[3];
+            String longitude = location_info_list[4];
+            String latitude = location_info_list[5];
 
             String stringTime = pref_time.getString("Time", "No time");
             String stringDescription = EditTextDescription.getText().toString();
             String stringDate = pref_date.getString("Date", "No date");
-            String stringLoc = pref_date.getString("Location", "No loc");
-
             String counter = pref_counter.getString("Event_counter", "1");
 
+
+
+            reminderInfo.put("Longitude", longitude);
+            reminderInfo.put("Latitude", latitude);
+            reminderInfo.put("Index", counter);
+            reminderInfo.put("Location", placeName);
             reminderInfo.put("Description", stringDescription);
             reminderInfo.put("Date", stringDate);
             reminderInfo.put("Time", stringTime);
-            reminderInfo.put("Location", stringLoc);
 
             String reminderInfoJSON = gson.toJson(reminderInfo);
             pref.edit().putString(login_name + "_" + "reminder" + counter, reminderInfoJSON).apply();
