@@ -3,6 +3,8 @@ package com.example.mc2020lab;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.gms.maps.GoogleMap;
 
@@ -38,6 +40,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 public class SchedulerActivity extends AppCompatActivity {
@@ -354,6 +357,7 @@ public class SchedulerActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -362,6 +366,8 @@ public class SchedulerActivity extends AppCompatActivity {
         //Check location permission
         enableLocationIfGranted();
         checkAndLoadReminders();
+
+        //Create worker for background work:
     }
 
     protected void onResume() {

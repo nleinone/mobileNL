@@ -1,6 +1,8 @@
 package com.example.mc2020lab;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -10,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,10 +27,16 @@ import com.google.gson.Gson;
 import org.w3c.dom.Text;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import 	java.util.Calendar;
+import java.util.concurrent.TimeUnit;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class AddReminderActivity extends AppCompatActivity {
+
+    public static final String workTag = "notificationWork";
 
     public void increaseEventCounter(SharedPreferences pref_counter)
     {
@@ -71,6 +80,88 @@ public class AddReminderActivity extends AppCompatActivity {
 
         Log.v("test", placeName);
         tvLocation.setText(placeName);
+
+    }
+
+    public int calculateDelay(String date, String time)
+    {
+        //get current time
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
+        String currentDateandTime = sdf.format(new Date());
+        String[] currentDateAndTimeSplit = currentDateandTime.split("_");
+
+        int currentYear  = Integer.parseInt(currentDateAndTimeSplit[0]);
+        int currentMonth = Integer.parseInt(currentDateAndTimeSplit[1]);
+        int currentDay   = Integer.parseInt(currentDateAndTimeSplit[2]);
+        int currentHour = Integer.parseInt(currentDateAndTimeSplit[3]);
+        int currentMin  = Integer.parseInt(currentDateAndTimeSplit[4]);
+
+        Log.v("Delay YY: ", currentDateAndTimeSplit[0]);
+        Log.v("Delay Month: ", currentDateAndTimeSplit[1]);
+        Log.v("Delay DD: ", currentDateAndTimeSplit[2]);
+        Log.v("Delay HH: ", currentDateAndTimeSplit[3]);
+        Log.v("Delay MM: ", currentDateAndTimeSplit[4]);
+
+        String[] dateSplit = date.split("/");
+        int inputDay = Integer.parseInt(dateSplit[0]);
+        int inputMonth = Integer.parseInt(dateSplit[1]);
+        int inputYear = Integer.parseInt(dateSplit[2]);
+
+        Log.v("Delay DD Input: ", dateSplit[0]);
+        Log.v("Delay Month Input: ", dateSplit[1]);
+        Log.v("Delay YY Input: ", dateSplit[2]);
+
+        String[] timeSplit = time.split(":");
+        int inputHour = Integer.parseInt(timeSplit[0]);
+        int inputMin = Integer.parseInt(timeSplit[1]);
+
+        Log.v("Delay Hour Input: ", timeSplit[0]);
+        Log.v("Delay Min Input: ", timeSplit[0]);
+
+        //int diffYear  = currentYear - inputYear;
+        int diffDay   = inputDay - currentDay;
+        int diffHour  = inputHour - currentHour;
+        int diffMin   = inputMin - currentMin;
+
+        Log.v("Delay Day Diff: ", Integer.toString(diffDay));
+        Log.v("Delay Hour Diff: ", Integer.toString(diffHour));
+        Log.v("Delay Min Diff: ", Integer.toString(diffMin));
+
+        //int delayFromYears = 0; //Next year reminders? With workManager, only delay can be set, this would mean setting up a 31 536 000 000‬ ms delay...
+        int delayFromDays = diffDay * 86400000; //One day delays the reminder for 86400000 ms.
+        int delayFromHours = diffHour * 3600000;
+        int delayFromMins = diffMin * 60000;
+        int delay = delayFromDays + delayFromHours + delayFromMins;
+
+        Log.v("Delay: ", Integer.toString(delay));
+
+        return delay;
+    }
+
+    public void scheduleWorker(String reminderDesc, String stringDate, String stringTime, String stringId)
+    {
+        SharedPreferences workerData = getApplicationContext().getSharedPreferences("WorkerData", 0);
+        workerData.edit().putString("TaskDesc", reminderDesc).apply();
+        workerData.edit().putString("TaskDate", stringDate).apply();
+        workerData.edit().putString("TaskTime", stringTime).apply();
+        workerData.edit().putString("TaskId", stringId).apply();
+
+        Log.v("Worker reminderDesc: ", reminderDesc);
+        Log.v("Worker TaskDate: ", stringDate);
+        Log.v("Worker TaskTime: ", stringTime);
+        Log.v("Worker TaskId: ", stringId);
+
+        //Calculate delay from current date and time
+        int delay = calculateDelay(stringDate, stringTime);
+        //Get current time:
+
+
+        OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(UploadWorker.class)
+                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .addTag(workTag)
+                .build();
+
+        WorkManager.getInstance(AddReminderActivity.this).enqueue(notificationWork);
 
     }
 
@@ -221,6 +312,7 @@ public class AddReminderActivity extends AppCompatActivity {
 
             if(canCreateReminder)
             {
+                scheduleWorker(stringDescription, stringDate, stringTime, counter);
                 finish();
             }
         }
