@@ -183,8 +183,9 @@ public class AddReminderActivity extends AppCompatActivity {
             EditText EditTextDescription = findViewById(R.id.editTextDesc);
             SharedPreferences pref_date = getApplicationContext().getSharedPreferences("pref_date", 0); // 0 - for private mode
             SharedPreferences pref_time = getApplicationContext().getSharedPreferences("pref_time", 0); // 0 - for private mode
-            SharedPreferences pref_loc = getApplicationContext().getSharedPreferences("pref_time", 0); // 0 - for private mode
+            SharedPreferences pref_location = getApplicationContext().getSharedPreferences("location", 0);
 
+            //Get location package, unpack it
 
             String stringTime = pref_time.getString("Time", "No time");
             String stringDescription = EditTextDescription.getText().toString();

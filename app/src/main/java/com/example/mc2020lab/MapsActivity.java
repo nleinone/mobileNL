@@ -4,7 +4,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +21,9 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -33,14 +38,18 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
 
     private GoogleMap mMap;
 
+    int location_index = 0;
     boolean firstLoad = true;
     final static int PERMISSION_ALL = 1;
     final static String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -52,6 +61,87 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //REF: https://mobikul.com/picking-location-with-map-pin-using-google-maps-in-android/
     //REF: https://abhiandroid.com/programming/googlemaps
     //AIzaSyCLF1Na9WALrQOZ99j7OLzx3ubG0kwnpRM
+    public Map<String, String> changeReminderValue(String textInput, String reminderString, Map<String, String> reminderInfo)
+    {
+
+        if (!(textInput.equals("")))
+        {
+            reminderInfo.put(reminderString, textInput);
+        }
+        return reminderInfo;
+    }
+
+    public void openPlaceNameWindow(String loginName, String longitude, String latitude)
+    {
+        AlertDialog.Builder placeNameWindow = new AlertDialog.Builder(MapsActivity.this);
+
+        Log.d("DEBUG","ow1");
+
+        final String loginNameFinal = loginName;
+        final String stringLongitude = longitude;
+        final String stringLatitude = latitude;
+        //Create viewGroup for multiple views in the alert box:
+
+        //ADD LAYOUTS FOR EVERY INFO:
+        Context context = MapsActivity.this;
+        LinearLayout layout = new LinearLayout(context);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        //Create Description editText and TextView to alert box:
+        final EditText editTextPlaceName = new EditText(MapsActivity.this);
+        final TextView txPlaceNameTitle = new TextView((MapsActivity.this));
+        txPlaceNameTitle.setText("Place name: ");
+
+        layout.addView(txPlaceNameTitle);
+        layout.addView(editTextPlaceName);
+
+
+
+        //Set texts to alert box
+        placeNameWindow.setMessage("Choose location for the reminder");
+        placeNameWindow.setTitle("Choose location");
+
+        placeNameWindow.setView(layout);
+
+        Log.d("DEBUG","ow2");
+
+        placeNameWindow.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+
+                Log.d("DEBUG","ow2");
+                Map<String, String> reminderInfo = new HashMap<String, String>();
+                //Get string:
+                String stringDescription = editTextPlaceName.getText().toString();
+
+                reminderInfo = changeReminderValue(stringDescription, "Location", reminderInfo);
+
+                SharedPreferences location = getApplicationContext().getSharedPreferences("Location", 0); // 0 - for private mode
+
+                int location_index_increased = location_index + 1;
+                String stringLocationIndex = Integer.toString(location_index_increased);
+
+                Gson gson = new Gson();
+                String reminderInfoJSON = gson.toJson(reminderInfo);
+                location.edit().putString("reminder" + "_" + stringLocationIndex + "_" + loginNameFinal +
+                                        "_" + stringDescription + "_" + stringLongitude + "_" + stringLatitude, reminderInfoJSON).apply();
+                finish();
+            }
+        });
+        placeNameWindow.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                Log.d("DEBUG","ow3");
+
+                dialog.dismiss();
+            }
+        });
+        placeNameWindow.show();
+        Log.d("DEBUG","ow4");
+
+
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +178,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         marker = mMap.addMarker(mo);
 
+        SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
+        final String loginName = login_name_pref.getString("loginName", "No name");
+
+        //String longitude = pref.getString(loginName + "_" + "longitude", "No longitude");
+        //String latitude = pref.getString(loginName + "_" + "latitude", "No latitude");
+
         //Touch functionalities:
         //REF: https://stackoverflow.com/questions/25153344/getting-coordinates-of-location-touch-on-google-map-in-android
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -96,26 +192,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d("DEBUG","Map clicked [" + point.latitude + " / " + point.longitude + "]");
                 //Do your stuff with LatLng here
                 //Then pass LatLng to other activity
+
+                String longitude = Double.toString(point.longitude);
+                String latitude = Double.toString(point.latitude);
+
+                openPlaceNameWindow(loginName, longitude, latitude);
+
             }
         });
-
-
-        SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
-        String loginName = login_name_pref.getString("loginName", "No name");
-
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
-        String longitude = pref.getString(loginName + "_" + "longitude", "No longitude");
-        String latitude = pref.getString(loginName + "_" + "latitude", "No latitude");
-
-        Log.v("Name", loginName);
-        Log.v("Longitude", longitude);
-        Log.v("Latitude", longitude);
-
-
-        Double doubleLongitude = Double.parseDouble(longitude);
-        Double doubleLatitude = Double.parseDouble(latitude);
-
-        //Zoom map intially:
 
     }
 

@@ -295,6 +295,11 @@ public class SchedulerActivity extends AppCompatActivity {
                 String description = reminder_information.get("Description");
                 String date = reminder_information.get("Date");
                 String time = reminder_information.get("Time");
+                //Location info format:
+                // "reminder" + "_" + stringLocationIndex + "_" + loginNameFinal +
+                //    "_" + stringDescription + "_" + stringLongitude + "_" + stringLatitude
+
+
 
                 SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
                 String index = Integer.toString(i);
