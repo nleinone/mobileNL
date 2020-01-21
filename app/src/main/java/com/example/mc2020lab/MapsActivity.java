@@ -4,6 +4,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -14,6 +16,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -60,28 +63,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mo = new MarkerOptions().position(new LatLng(0,0)).title("My current location");
 
         //Add permission test if failing
-        if (Build.VERSION.SDK_INT >= 23)
+        if (Build.VERSION.SDK_INT >= 23 && !isPermissionGranted())
         {
+            Log.v("onCreateMap", "t1");
+
             requestPermissions(PERMISSIONS, PERMISSION_ALL);
         }
         else
         {
+            Log.v("onCreateMap", "t2");
              requestLocation();
+        }
+        if(!isLocationEnabled())
+        {
+            Log.v("onCreateMap", "t3");
+            showAlert(1);
         }
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        marker = mMap.addMarker(mo);
 
         SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
         String loginName = login_name_pref.getString("loginName", "No name");
@@ -100,10 +103,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Move camera to current location
         //REF: https://github.com/nleinone/CrowdSourcer/blob/master/app/src/main/java/com/example/nikol/growdsourcer/LocationTracker.java
-        LatLng current_location = new LatLng(doubleLatitude, doubleLongitude);
-        mMap.addMarker(new MarkerOptions().position(current_location).title("Current position marker"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(current_location));
+        //LatLng current_location = new LatLng(doubleLatitude, doubleLongitude);
+        //mMap.addMarker(new MarkerOptions().position(current_location).title("Current position marker"));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(current_location));
 
+        /*
         //Marker drag:
         googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
@@ -125,21 +129,117 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
-
+        */
     }
+
 
     //REF: https://www.thecodecity.com/2017/03/location-tracker-android-app-complete.html
     public void requestLocation()
     {
+        Log.v("onCreateMap", "t2.1");
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setPowerRequirement(Criteria.POWER_HIGH);
         String provider = locationManager.getBestProvider(criteria, true);
-        //locationManager.requestLocationUpdates(provider, 10000, 10, true);
+        if(Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED || checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                locationManager.requestLocationUpdates(provider, 10000, 10, this);
+            }
+        }
+    }
+
+    public boolean isLocationEnabled()
+    {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    public boolean isPermissionGranted()
+    {
+        if(Build.VERSION.SDK_INT >= 23)
+        {
+            if(checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED || checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED)
+            {
+                Log.v("MAPS", "test");
+                return true;
+            }
+            else
+            {
+                Log.v("MAPS", "test2");
+                return false;
+            }
+        }
+        else
+        {
+            Log.v("MAPS", "Wrong API (Must be more than 23");
+            return false;
+        }
+    }
+
+    public void showAlert(final int status)
+    {
+        String msg;
+        String title;
+        String btnTxt;
+
+        DialogInterface.OnClickListener buttonListener_positive =
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(status == 1)
+                        {
+                            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(myIntent);
+                        }
+                        else
+                        {
+                            if(Build.VERSION.SDK_INT >= 23)
+                            {
+                                requestPermissions(PERMISSIONS, PERMISSION_ALL);
+                            }
+                        }
+                    }
+                };
+        DialogInterface.OnClickListener buttonListener_negative =
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                };
+        if (status == 1)
+        {
+            msg = "Location is off!";
+            title = "Enable location!";
+            btnTxt = "Location Settings";
+        }
+        else
+        {
+            msg = "Please allow this app to use location!";
+            title = "Permission access";
+            btnTxt = "Grant";
+        }
+
+        AlertDialog introDialog = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(msg)
+                .setPositiveButton(btnTxt, buttonListener_positive)
+                .setNegativeButton("Cancel", buttonListener_negative)
+                .setCancelable(false)
+                .create();
+        introDialog.show();
     }
 
     @Override
     public void onLocationChanged(Location location) {
+
+        LatLng myCoordinates = new LatLng(location.getLatitude(), location.getLongitude());
+        String stringCoordinates = myCoordinates.toString();
+        Log.v("Current Location:", stringCoordinates);
+        marker.setPosition(myCoordinates);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(myCoordinates));
 
     }
 
