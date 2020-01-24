@@ -74,11 +74,15 @@ public class AddReminderActivity extends AppCompatActivity {
 
         TextView tvLocation = findViewById(R.id.tvLocation);
         SharedPreferences pref_location = getApplicationContext().getSharedPreferences("Location", 0);
-        String location_package = pref_location.getString("Location_package", "Press 'Open Map'");
-        String[] location_info_list = location_package.split("_");
-        String placeName = location_info_list[3];
+        String placeName = pref_location.getString("Location_package", "Press 'Open Map'");
+        if(!placeName.equals("Press 'Open Map'"))
+        {
+            String[] location_info_list = placeName.split("_");
+            placeName = location_info_list[3];
 
-        Log.v("test", placeName);
+            Log.v("test", placeName);
+        }
+
         tvLocation.setText(placeName);
 
     }
@@ -102,35 +106,47 @@ public class AddReminderActivity extends AppCompatActivity {
         Log.v("Delay HH: ", currentDateAndTimeSplit[3]);
         Log.v("Delay MM: ", currentDateAndTimeSplit[4]);
 
-        String[] dateSplit = date.split("/");
-        int inputDay = Integer.parseInt(dateSplit[0]);
-        int inputMonth = Integer.parseInt(dateSplit[1]);
-        int inputYear = Integer.parseInt(dateSplit[2]);
+        //Init values:
+        int delayFromDays = 0;
+        int delayFromHours = 0;
+        int delayFromMins = 0;
 
-        Log.v("Delay DD Input: ", dateSplit[0]);
-        Log.v("Delay Month Input: ", dateSplit[1]);
-        Log.v("Delay YY Input: ", dateSplit[2]);
+        if(!date.equals("No date"))
+        {
+            String[] dateSplit = date.split("/");
+            int inputDay = Integer.parseInt(dateSplit[0]);
+            int inputMonth = Integer.parseInt(dateSplit[1]);
+            int inputYear = Integer.parseInt(dateSplit[2]);
 
-        String[] timeSplit = time.split(":");
-        int inputHour = Integer.parseInt(timeSplit[0]);
-        int inputMin = Integer.parseInt(timeSplit[1]);
+            Log.v("Delay DD Input: ", dateSplit[0]);
+            Log.v("Delay Month Input: ", dateSplit[1]);
+            Log.v("Delay YY Input: ", dateSplit[2]);
 
-        Log.v("Delay Hour Input: ", timeSplit[0]);
-        Log.v("Delay Min Input: ", timeSplit[0]);
+            int diffDay   = inputDay - currentDay;
+            Log.v("Delay Day Diff: ", Integer.toString(diffDay));
+            //int delayFromYears = 0; //Next year reminders? With workManager, only delay can be set, this would mean setting up a 31 536 000 000‬ ms delay...
+            delayFromDays = diffDay * 86400000; //One day delays the reminder for 86400000 ms.
+        }
 
+        if(!time.equals("No time"))
+        {
+            String[] timeSplit = time.split(":");
+            int inputHour = Integer.parseInt(timeSplit[0]);
+            int inputMin = Integer.parseInt(timeSplit[1]);
+
+            Log.v("Delay Hour Input: ", timeSplit[0]);
+            Log.v("Delay Min Input: ", timeSplit[0]);
+
+            int diffHour  = inputHour - currentHour;
+            int diffMin   = inputMin - currentMin;
+            Log.v("Delay Hour Diff: ", Integer.toString(diffHour));
+            Log.v("Delay Min Diff: ", Integer.toString(diffMin));
+            delayFromHours = diffHour * 3600000;
+            delayFromMins = diffMin * 60000;
+
+        }
         //int diffYear  = currentYear - inputYear;
-        int diffDay   = inputDay - currentDay;
-        int diffHour  = inputHour - currentHour;
-        int diffMin   = inputMin - currentMin;
 
-        Log.v("Delay Day Diff: ", Integer.toString(diffDay));
-        Log.v("Delay Hour Diff: ", Integer.toString(diffHour));
-        Log.v("Delay Min Diff: ", Integer.toString(diffMin));
-
-        //int delayFromYears = 0; //Next year reminders? With workManager, only delay can be set, this would mean setting up a 31 536 000 000‬ ms delay...
-        int delayFromDays = diffDay * 86400000; //One day delays the reminder for 86400000 ms.
-        int delayFromHours = diffHour * 3600000;
-        int delayFromMins = diffMin * 60000;
         int delay = delayFromDays + delayFromHours + delayFromMins;
 
         Log.v("Delay: ", Integer.toString(delay));
@@ -158,7 +174,7 @@ public class AddReminderActivity extends AppCompatActivity {
 
         OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(UploadWorker.class)
                 .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-                .addTag(workTag)
+                .addTag(workTag + stringId)
                 .build();
 
         WorkManager.getInstance(AddReminderActivity.this).enqueue(notificationWork);
@@ -232,7 +248,10 @@ public class AddReminderActivity extends AppCompatActivity {
         if (v.getId() == R.id.selectLocationBtn)
         {
             Log.v("Addrem", "t1");
-            startActivity(new Intent(AddReminderActivity.this, MapsActivity.class));
+            //REF: https://stackoverflow.com/questions/25147612/can-i-check-which-the-previous-activity-was-android
+            Intent mIntent = new Intent(this, MapsActivity.class); //'this' is Activity A
+            mIntent.putExtra("FROM_ACTIVITY", "AddReminderActivity");
+            startActivity(mIntent);
         }
 
         if (v.getId() == R.id.clearDataBtn) {
@@ -313,6 +332,7 @@ public class AddReminderActivity extends AppCompatActivity {
             if(canCreateReminder)
             {
                 scheduleWorker(stringDescription, stringDate, stringTime, counter);
+                Log.v("AddReminderActivity" ,"Work created: " + workTag + counter);
                 finish();
             }
         }

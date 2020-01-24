@@ -40,6 +40,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.w3c.dom.Text;
 
@@ -60,6 +61,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     MarkerOptions mo;
     Marker marker;
     LocationManager locationManager;
+
+    public void loadMarkers(GoogleMap googleMap)
+    {
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
+        SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
+        String login_name = login_name_pref.getString("loginName", "NoName");
+        Gson gson = new Gson();
+        for (int i = 1; i < 12; i++) {
+            String str = Integer.toString(i);
+
+            if (pref.contains(login_name + "_" + "reminder" + str))
+            {
+                String storedHashMapString = pref.getString(login_name + "_" + "reminder" + str, "oopsDintWork");
+                java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>() {
+                }.getType();
+
+                HashMap<String, String> reminder_information = gson.fromJson(storedHashMapString, type);
+
+                //Load reminder information
+
+                String longitude = reminder_information.get("Longitude");
+                String latitude = reminder_information.get("Latitude");
+                String description = reminder_information.get("Description");
+                String placeName = reminder_information.get("Location");
+
+                //LOGGED REMINDER INFORMATION:
+                Log.d("REMINDERTAG", "Description: " + description);
+                Log.d("REMINDERTAG", "Location: " + placeName);
+                Log.d("REMINDERTAG", "Longitude: " + longitude);
+                Log.d("REMINDERTAG", "Latitude: " + latitude);
+
+                if(longitude != null || latitude != null)
+                {
+                    double lng = Double.parseDouble(longitude);
+                    double lat = Double.parseDouble(latitude);
+                    //Add marker
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(lat, lng))
+                            .title(description));
+                }
+
+            }
+        }
+    }
+
+
+
+
 
     //REF: https://mobikul.com/picking-location-with-map-pin-using-google-maps-in-android/
     //REF: https://abhiandroid.com/programming/googlemaps
@@ -186,8 +235,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
         final String loginName = login_name_pref.getString("loginName", "No name");
 
-        //String longitude = pref.getString(loginName + "_" + "longitude", "No longitude");
-        //String latitude = pref.getString(loginName + "_" + "latitude", "No latitude");
 
         //Touch functionalities:
         //REF: https://stackoverflow.com/questions/25153344/getting-coordinates-of-location-touch-on-google-map-in-android
@@ -201,10 +248,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String longitude = Double.toString(point.longitude);
                 String latitude = Double.toString(point.latitude);
 
-                openPlaceNameWindow(loginName, longitude, latitude);
+                Intent mIntent = getIntent();
+                String previousActivity = mIntent.getStringExtra("FROM_ACTIVITY");
+                if(previousActivity.equals("AddReminderActivity"))
+                {
+                    openPlaceNameWindow(loginName, longitude, latitude);
+                }
+                else
+                {
+                    Log.d("DEBUG","Map clicked and nothing should happen.");
+                }
 
             }
         });
+
+        //LoadMarkers:
+        loadMarkers(mMap);
 
     }
 

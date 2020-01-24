@@ -40,12 +40,15 @@ import com.google.gson.reflect.TypeToken;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 
 public class SchedulerActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
+    public static final String workTag = "notificationWork";
 
     public Map<String, String> changeReminderValue(String textInput, String reminderString, Map<String, String> reminderInfo)
     {
@@ -140,6 +143,7 @@ public class SchedulerActivity extends AppCompatActivity {
                 SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
                 pref.edit().remove(login_name + "_" + "reminder" + index_final).apply();
                 checkAndLoadReminders();
+
             }
         });
 
@@ -337,6 +341,12 @@ public class SchedulerActivity extends AppCompatActivity {
                 //setTextToRow(hours, table, row1);
                 //setTextToRow(mins, table, row1);
             }
+
+            else
+            {
+                Log.v("Scheduler" ,"Work canceled: " + workTag + str);
+                WorkManager.getInstance(this).cancelAllWorkByTag(workTag + str);
+            }
         }
     }
 
@@ -381,7 +391,10 @@ public class SchedulerActivity extends AppCompatActivity {
             startActivity(new Intent(SchedulerActivity.this, AddReminderActivity.class));
         }
         if (v.getId() == R.id.checkMapBtn) {
-            startActivity(new Intent(SchedulerActivity.this, MapsActivity.class));
+            //REF: https://stackoverflow.com/questions/25147612/can-i-check-which-the-previous-activity-was-android
+            Intent mIntent = new Intent(this, MapsActivity.class); //'this' is Activity A
+            mIntent.putExtra("FROM_ACTIVITY", "SchedulerActivity");
+            startActivity(mIntent);
         }
     }
 }
