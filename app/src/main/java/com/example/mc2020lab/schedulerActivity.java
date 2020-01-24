@@ -6,6 +6,10 @@ import androidx.core.content.ContextCompat;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 
 import android.Manifest;
@@ -37,8 +41,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -47,8 +53,42 @@ import java.util.concurrent.TimeUnit;
 public class SchedulerActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
     public static final String workTag = "notificationWork";
+    private GeofencingClient geofencingClient;
+
+    public void createGeoFences(String GEOFENCE_REQ_ID, String stringLATITUDE, String stringLONGITUDE, String stringDURATION)
+    {
+        //REF: https://developer.android.com/training/location/geofencing
+        //https://code.tutsplus.com/tutorials/how-to-work-with-geofences-on-android--cms-26639
+
+        geofencingClient = LocationServices.getGeofencingClient(this);
+
+        double LATITUDE = Double.parseDouble(stringLATITUDE);
+        double LONGITUDE = Double.parseDouble(stringLONGITUDE);
+        long DURATION = 0;
+        if(stringDURATION != null)
+        {
+            DURATION = Long.parseLong(stringDURATION);
+        }
+
+        float RADIUS = 10;
+        Geofence geofence = new Geofence.Builder()
+                .setRequestId(GEOFENCE_REQ_ID) // Geofence ID
+                .setCircularRegion( LATITUDE, LONGITUDE, RADIUS) // defining fence region
+                .setExpirationDuration( DURATION ) // expiring date
+                // Transition types that it should look for
+                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT )
+                .build();
+
+        List geoFenceList = new ArrayList();
+        geoFenceList.add(geofence);
+
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(geoFenceList);
+        builder.build();
+
+    }
 
     public Map<String, String> changeReminderValue(String textInput, String reminderString, Map<String, String> reminderInfo)
     {
@@ -293,11 +333,11 @@ public class SchedulerActivity extends AppCompatActivity {
         String login_name = login_name_pref.getString("loginName", "NoName");
 
         for (int i = 1; i < 12; i++) {
-            String str = Integer.toString(i);
+            String index = Integer.toString(i);
 
-            if (pref.contains(login_name + "_" + "reminder" + str)) {
+            if (pref.contains(login_name + "_" + "reminder" + index)) {
 
-                String storedHashMapString = pref.getString(login_name + "_" + "reminder" + str, "oopsDintWork");
+                String storedHashMapString = pref.getString(login_name + "_" + "reminder" + index, "oopsDintWork");
                 java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>() {
                 }.getType();
 
@@ -312,6 +352,7 @@ public class SchedulerActivity extends AppCompatActivity {
                 String date = reminder_information.get("Date");
                 String time = reminder_information.get("Time");
                 String placeName = reminder_information.get("Location");
+                String delay = reminder_information.get("Delay");
 
                 //LOGGED REMINDER INFORMATION:
                 Log.d("REMINDERTAG", "Reminder: " + index_counter);
@@ -326,26 +367,31 @@ public class SchedulerActivity extends AppCompatActivity {
                 // "reminder" + "_" + stringLocationIndex + "_" + loginNameFinal +
                 //    "_" + stringDescription + "_" + stringLongitude + "_" + stringLatitude
 
-
-
                 SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
-                String index = Integer.toString(i);
 
                 //https://stackoverflow.com/questions/11342975/android-create-textviews-in-tablerows-programmatically
 
                 TableRow row1 = new TableRow(this);
 
                 setTextToRow(description, date, time, placeName, row1, table, index);
-                //setTextToRow(days, table, row1);
-                //setTextToRow(months, table, row1);
-                //setTextToRow(hours, table, row1);
-                //setTextToRow(mins, table, row1);
+
+                //Create geofences according to the reminder locations:
+
+
+                createGeoFences(index, latitude, longitude, delay);
+
             }
 
             else
             {
-                Log.v("Scheduler" ,"Work canceled: " + workTag + str);
-                WorkManager.getInstance(this).cancelAllWorkByTag(workTag + str);
+                Log.v("Scheduler" ,"Work canceled: " + workTag + index);
+                WorkManager.getInstance(this).cancelAllWorkByTag(workTag + index);
+                //Remove geofences:
+                List idList = new ArrayList();
+                idList.add(index);
+                geofencingClient = LocationServices.getGeofencingClient(this);
+                geofencingClient.removeGeofences(idList);
+
             }
         }
     }

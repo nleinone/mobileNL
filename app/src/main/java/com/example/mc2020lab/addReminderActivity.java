@@ -87,7 +87,7 @@ public class AddReminderActivity extends AppCompatActivity {
 
     }
 
-    public int calculateDelay(String date, String time)
+    public int calculateDelay(String date, String time,  Map<String, String> reminderInfo)
     {
         //get current time
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
@@ -151,10 +151,13 @@ public class AddReminderActivity extends AppCompatActivity {
 
         Log.v("Delay: ", Integer.toString(delay));
 
+        String stringDelay = Integer.toString(delay);
+        reminderInfo.put("Delay", stringDelay);
+
         return delay;
     }
 
-    public void scheduleWorker(String reminderDesc, String stringDate, String stringTime, String stringId)
+    public void scheduleWorker(String reminderDesc, String stringDate, String stringTime, String stringId, Map<String, String> reminderInfo)
     {
         SharedPreferences workerData = getApplicationContext().getSharedPreferences("WorkerData", 0);
         workerData.edit().putString("TaskDesc", reminderDesc).apply();
@@ -168,7 +171,7 @@ public class AddReminderActivity extends AppCompatActivity {
         Log.v("Worker TaskId: ", stringId);
 
         //Calculate delay from current date and time
-        int delay = calculateDelay(stringDate, stringTime);
+        int delay = calculateDelay(stringDate, stringTime, reminderInfo);
         //Get current time:
 
 
@@ -331,7 +334,7 @@ public class AddReminderActivity extends AppCompatActivity {
 
             if(canCreateReminder)
             {
-                scheduleWorker(stringDescription, stringDate, stringTime, counter);
+                scheduleWorker(stringDescription, stringDate, stringTime, counter, reminderInfo);
                 Log.v("AddReminderActivity" ,"Work created: " + workTag + counter);
                 finish();
             }
