@@ -86,7 +86,7 @@ public class SchedulerActivity extends Utils {
         datePickerDialog.show();
     }
 
-    public void openClock(TextView tvTitleTime)
+    public void openClock(TextView tvTitleTime, String index, final String reminderDesc, final String stringDate)
     {
         //REF: https://stackoverflow.com/questions/17901946/timepicker-dialog-from-clicking-edittext
         final TextView tvTitleTimeFinal = tvTitleTime;
@@ -96,6 +96,7 @@ public class SchedulerActivity extends Utils {
         int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
         int minute = mcurrentTime.get(Calendar.MINUTE);
         TimePickerDialog mTimePicker;
+        final String indexFinal = index;
         mTimePicker = new TimePickerDialog(SchedulerActivity.this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
@@ -103,6 +104,11 @@ public class SchedulerActivity extends Utils {
                 tvTitleTimeFinal.setText(stringTime);
                 SharedPreferences pref_time = getApplicationContext().getSharedPreferences("pref_time", 0); // 0 - for private mode
                 pref_time.edit().putString("Time", stringTime).apply();
+
+                //Delete reminder and add new:
+                Context context = getApplicationContext();
+                WorkManager.getInstance(context).cancelAllWorkByTag(workTag+indexFinal);
+                reScheduleWorker(reminderDesc, stringDate, stringTime, indexFinal);
 
             }
         }, hour, minute, true);//Yes 24 hour time
@@ -195,8 +201,10 @@ public class SchedulerActivity extends Utils {
                 tvTitleDate.setText("Date:");
                 layout.addView(tvTitleDate);
 
+                final String dateString = reminder_information.get("Date");
+
                 final TextView tvDate = new TextView(SchedulerActivity.this);
-                tvDate.setText(reminder_information.get("Date"));
+                tvDate.setText(dateString);
                 layout.addView(tvDate);
                 //Button
                 Button dateBtn = new Button(SchedulerActivity.this);
@@ -230,7 +238,7 @@ public class SchedulerActivity extends Utils {
 
                     @Override
                     public void onClick(View v) {
-                        openClock(tvTime);
+                        openClock(tvTime, index_final2, reminderDesc, dateString );
                     }
                 });
                 layout.addView(timeBtn);
