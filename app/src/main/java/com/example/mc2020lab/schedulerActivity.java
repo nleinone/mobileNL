@@ -41,6 +41,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -50,57 +51,12 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 
-public class SchedulerActivity extends AppCompatActivity {
+public class SchedulerActivity extends Utils {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    public static final String workTag = "notificationWork";
     private GeofencingClient geofencingClient;
 
-    public void createGeoFences(String GEOFENCE_REQ_ID, String stringLATITUDE, String stringLONGITUDE, String stringDURATION)
-    {
-        //REF: https://developer.android.com/training/location/geofencing
-        //https://code.tutsplus.com/tutorials/how-to-work-with-geofences-on-android--cms-26639
-
-        geofencingClient = LocationServices.getGeofencingClient(this);
-
-        double LATITUDE = Double.parseDouble(stringLATITUDE);
-        double LONGITUDE = Double.parseDouble(stringLONGITUDE);
-        long DURATION = 0;
-        if(stringDURATION != null)
-        {
-            DURATION = Long.parseLong(stringDURATION);
-        }
-
-        float RADIUS = 10;
-        Geofence geofence = new Geofence.Builder()
-                .setRequestId(GEOFENCE_REQ_ID) // Geofence ID
-                .setCircularRegion( LATITUDE, LONGITUDE, RADIUS) // defining fence region
-                .setExpirationDuration( DURATION ) // expiring date
-                // Transition types that it should look for
-                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT )
-                .build();
-
-        List geoFenceList = new ArrayList();
-        geoFenceList.add(geofence);
-
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-        builder.addGeofences(geoFenceList);
-        builder.build();
-
-    }
-
-    public Map<String, String> changeReminderValue(String textInput, String reminderString, Map<String, String> reminderInfo)
-    {
-
-        if (!(textInput.equals("")))
-        {
-            reminderInfo.put(reminderString, textInput);
-        }
-        return reminderInfo;
-    }
-
-    public void openCalendar(TextView tvDate)
+    public void openCalendar(TextView tvDate, String index, final String reminderDesc, final String reminderTime)
     {
 
         final TextView tvDateFinal = tvDate;
@@ -108,7 +64,7 @@ public class SchedulerActivity extends AppCompatActivity {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-
+        final String indexFinal = index;
         //REF: https://www.codingdemos.com/android-datepicker-button/
         DatePickerDialog datePickerDialog = new DatePickerDialog(SchedulerActivity.this,
                 new DatePickerDialog.OnDateSetListener() {
@@ -119,6 +75,11 @@ public class SchedulerActivity extends AppCompatActivity {
                         String stringDate = tvDateFinal.getText().toString();
                         SharedPreferences pref_date = getApplicationContext().getSharedPreferences("pref_date", 0); // 0 - for private mode
                         pref_date.edit().putString("Date", stringDate).apply();
+                        //Delete reminder and add new:
+                        Context context = getApplicationContext();
+                        WorkManager.getInstance(context).cancelAllWorkByTag(workTag+indexFinal);
+                        reScheduleWorker(reminderDesc, stringDate, reminderTime, indexFinal);
+
 
                     }
                 }, year, month, dayOfMonth);
@@ -182,6 +143,11 @@ public class SchedulerActivity extends AppCompatActivity {
 
                 SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
                 pref.edit().remove(login_name + "_" + "reminder" + index_final).apply();
+                //Work tag: notificationWork + id
+                String workTag = "notificationWork";
+                Context context = getApplication();
+                Log.v("SchedulerActivity", "Deleted reminder: " + (workTag + index_final));
+                WorkManager.getInstance(context).cancelAllWorkByTag(workTag + index_final);
                 checkAndLoadReminders();
 
             }
@@ -215,8 +181,9 @@ public class SchedulerActivity extends AppCompatActivity {
                 layout.setOrientation(LinearLayout.VERTICAL);
 
                 //Create Description editText and TextView to alert box:
+                final String reminderDesc = reminder_information.get("Description");
                 final EditText editTextDesct = new EditText(SchedulerActivity.this);
-                editTextDesct.setText(reminder_information.get("Description"));
+                editTextDesct.setText(reminderDesc);
                 final TextView txDesc = new TextView((SchedulerActivity.this));
                 txDesc.setText("Description: ");
                 layout.addView(txDesc);
@@ -235,11 +202,13 @@ public class SchedulerActivity extends AppCompatActivity {
                 Button dateBtn = new Button(SchedulerActivity.this);
                 dateBtn.setText("Change date");
 
+                final String reminderTime = reminder_information.get("Time");
+
                 dateBtn.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
-                        openCalendar(tvDate);
+                        openCalendar(tvDate, index_final2, reminderDesc, reminderTime);
                     }
                 });
                 layout.addView(dateBtn);
@@ -251,7 +220,7 @@ public class SchedulerActivity extends AppCompatActivity {
                 layout.addView(tvTitleTime);
 
                 final TextView tvTime = new TextView(SchedulerActivity.this);
-                tvTime.setText(reminder_information.get("Time"));
+                tvTime.setText(reminderTime);
                 layout.addView(tvTime);
                 //Button
                 Button timeBtn = new Button(SchedulerActivity.this);
@@ -306,7 +275,6 @@ public class SchedulerActivity extends AppCompatActivity {
                 alert.show();
             }
         });
-
 
         //Delete button for reminder
         deleteButton.setText("Delete");
@@ -377,7 +345,6 @@ public class SchedulerActivity extends AppCompatActivity {
 
                 //Create geofences according to the reminder locations:
 
-
                 createGeoFences(index, latitude, longitude, delay);
 
             }
@@ -412,7 +379,6 @@ public class SchedulerActivity extends AppCompatActivity {
             }
         }
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

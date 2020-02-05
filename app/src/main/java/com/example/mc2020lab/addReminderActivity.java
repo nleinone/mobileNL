@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class AddReminderActivity extends AppCompatActivity {
+public class AddReminderActivity extends Utils {
 
     public static final String workTag = "notificationWork";
 
@@ -87,76 +87,6 @@ public class AddReminderActivity extends AppCompatActivity {
 
     }
 
-    public int calculateDelay(String date, String time,  Map<String, String> reminderInfo)
-    {
-        //get current time
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
-        String currentDateandTime = sdf.format(new Date());
-        String[] currentDateAndTimeSplit = currentDateandTime.split("_");
-
-        int currentYear  = Integer.parseInt(currentDateAndTimeSplit[0]);
-        int currentMonth = Integer.parseInt(currentDateAndTimeSplit[1]);
-        int currentDay   = Integer.parseInt(currentDateAndTimeSplit[2]);
-        int currentHour = Integer.parseInt(currentDateAndTimeSplit[3]);
-        int currentMin  = Integer.parseInt(currentDateAndTimeSplit[4]);
-
-        Log.v("Delay YY: ", currentDateAndTimeSplit[0]);
-        Log.v("Delay Month: ", currentDateAndTimeSplit[1]);
-        Log.v("Delay DD: ", currentDateAndTimeSplit[2]);
-        Log.v("Delay HH: ", currentDateAndTimeSplit[3]);
-        Log.v("Delay MM: ", currentDateAndTimeSplit[4]);
-
-        //Init values:
-        int delayFromDays = 0;
-        int delayFromHours = 0;
-        int delayFromMins = 0;
-
-        if(!date.equals("No date"))
-        {
-            String[] dateSplit = date.split("/");
-            int inputDay = Integer.parseInt(dateSplit[0]);
-            int inputMonth = Integer.parseInt(dateSplit[1]);
-            int inputYear = Integer.parseInt(dateSplit[2]);
-
-            Log.v("Delay DD Input: ", dateSplit[0]);
-            Log.v("Delay Month Input: ", dateSplit[1]);
-            Log.v("Delay YY Input: ", dateSplit[2]);
-
-            int diffDay   = inputDay - currentDay;
-            Log.v("Delay Day Diff: ", Integer.toString(diffDay));
-            //int delayFromYears = 0; //Next year reminders? With workManager, only delay can be set, this would mean setting up a 31 536 000 000‬ ms delay...
-            delayFromDays = diffDay * 86400000; //One day delays the reminder for 86400000 ms.
-        }
-
-        if(!time.equals("No time"))
-        {
-            String[] timeSplit = time.split(":");
-            int inputHour = Integer.parseInt(timeSplit[0]);
-            int inputMin = Integer.parseInt(timeSplit[1]);
-
-            Log.v("Delay Hour Input: ", timeSplit[0]);
-            Log.v("Delay Min Input: ", timeSplit[0]);
-
-            int diffHour  = inputHour - currentHour;
-            int diffMin   = inputMin - currentMin;
-            Log.v("Delay Hour Diff: ", Integer.toString(diffHour));
-            Log.v("Delay Min Diff: ", Integer.toString(diffMin));
-            delayFromHours = diffHour * 3600000;
-            delayFromMins = diffMin * 60000;
-
-        }
-        //int diffYear  = currentYear - inputYear;
-
-        int delay = delayFromDays + delayFromHours + delayFromMins;
-
-        Log.v("Delay: ", Integer.toString(delay));
-
-        String stringDelay = Integer.toString(delay);
-        reminderInfo.put("Delay", stringDelay);
-
-        return delay;
-    }
-
     public void scheduleWorker(String reminderDesc, String stringDate, String stringTime, String stringId, Map<String, String> reminderInfo)
     {
         SharedPreferences workerData = getApplicationContext().getSharedPreferences("WorkerData", 0);
@@ -171,7 +101,7 @@ public class AddReminderActivity extends AppCompatActivity {
         Log.v("Worker TaskId: ", stringId);
 
         //Calculate delay from current date and time
-        int delay = calculateDelay(stringDate, stringTime, reminderInfo);
+        int delay = calculateDelay(stringDate, stringTime);
         //Get current time:
 
 
