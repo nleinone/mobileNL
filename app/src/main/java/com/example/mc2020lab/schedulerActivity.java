@@ -1,20 +1,11 @@
 package com.example.mc2020lab;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-
-import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.GoogleMap;
-
 import android.Manifest;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -24,10 +15,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -36,20 +25,13 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TimePicker;
-
-import com.google.android.gms.maps.GoogleMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import java.io.Console;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
 
 public class SchedulerActivity extends Utils {
 
@@ -191,14 +173,13 @@ public class SchedulerActivity extends Utils {
                 final EditText editTextDesct = new EditText(SchedulerActivity.this);
                 editTextDesct.setText(reminderDesc);
                 final TextView txDesc = new TextView((SchedulerActivity.this));
-                txDesc.setText("Description: ");
+                txDesc.setText(getString(R.string.descriptionTx));
                 layout.addView(txDesc);
                 layout.addView(editTextDesct);
 
                 //Set calendar button to edit box:
-                //Text
                 final TextView tvTitleDate = new TextView(SchedulerActivity.this);
-                tvTitleDate.setText("Date:");
+                tvTitleDate.setText(getString(R.string.dateTx));
                 layout.addView(tvTitleDate);
 
                 final String dateString = reminder_information.get("Date");
@@ -206,9 +187,10 @@ public class SchedulerActivity extends Utils {
                 final TextView tvDate = new TextView(SchedulerActivity.this);
                 tvDate.setText(dateString);
                 layout.addView(tvDate);
+
                 //Button
                 Button dateBtn = new Button(SchedulerActivity.this);
-                dateBtn.setText("Change date");
+                dateBtn.setText(getString(R.string.changeDateTx));
 
                 final String reminderTime = reminder_information.get("Time");
 
@@ -222,17 +204,17 @@ public class SchedulerActivity extends Utils {
                 layout.addView(dateBtn);
 
                 //Add time edit:
-                //Text
                 final TextView tvTitleTime = new TextView(SchedulerActivity.this);
-                tvTitleDate.setText("Time:");
+                tvTitleDate.setText(getString(R.string.timeTx));
                 layout.addView(tvTitleTime);
 
                 final TextView tvTime = new TextView(SchedulerActivity.this);
                 tvTime.setText(reminderTime);
                 layout.addView(tvTime);
+
                 //Button
                 Button timeBtn = new Button(SchedulerActivity.this);
-                timeBtn.setText("Change time");
+                timeBtn.setText(getString(R.string.ChangeTimeTx));
 
                 timeBtn.setOnClickListener(new View.OnClickListener() {
 
@@ -242,7 +224,6 @@ public class SchedulerActivity extends Utils {
                     }
                 });
                 layout.addView(timeBtn);
-
 
                 //Set texts to alert box
                 alert.setMessage("Edit reminder values");
@@ -258,7 +239,7 @@ public class SchedulerActivity extends Utils {
                         String stringDate = tvDate.getText().toString();
                         String stringTime = tvTime.getText().toString();
 
-                        Map<String, String> reminderInfo = new HashMap<String, String>();
+                        Map<String, String> reminderInfo = new HashMap<>();
 
                         reminderInfo = changeReminderValue(stringDescription, "Description", reminderInfo);
                         reminderInfo = changeReminderValue(stringDate, "Date", reminderInfo);
@@ -285,8 +266,8 @@ public class SchedulerActivity extends Utils {
         });
 
         //Delete button for reminder
-        deleteButton.setText("Delete");
-        editButton.setText("Edit");
+        deleteButton.setText(getString(R.string.DeleteTxBtn));
+        editButton.setText(getString(R.string.EditTxBtn));
 
         row.addView(descTxt);
         row.addView(tvDate);
@@ -301,7 +282,7 @@ public class SchedulerActivity extends Utils {
     {
         Gson gson = new Gson();
 
-        TableLayout table = (TableLayout) findViewById(R.id.tableLayout);
+        TableLayout table = findViewById(R.id.tableLayout);
         table.removeAllViews();
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("reminder_info_preference", 0); // 0 - for private mode
@@ -342,19 +323,14 @@ public class SchedulerActivity extends Utils {
                 //Location info format:
                 // "reminder" + "_" + stringLocationIndex + "_" + loginNameFinal +
                 //    "_" + stringDescription + "_" + stringLongitude + "_" + stringLatitude
-
-                SharedPreferences pref_counter = getApplicationContext().getSharedPreferences("reminder_counter", 0); // 0 - for private mode
-
                 //https://stackoverflow.com/questions/11342975/android-create-textviews-in-tablerows-programmatically
 
                 TableRow row1 = new TableRow(this);
-
                 setTextToRow(description, date, time, placeName, row1, table, index);
 
                 //Create geofences according to the reminder locations:
 
                 createGeoFences(index, latitude, longitude, delay);
-
             }
 
             else
@@ -396,8 +372,6 @@ public class SchedulerActivity extends Utils {
         //Check location permission
         enableLocationIfGranted();
         checkAndLoadReminders();
-
-        //Create worker for background work:
     }
 
     protected void onResume() {

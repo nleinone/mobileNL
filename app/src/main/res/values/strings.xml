@@ -23,6 +23,14 @@
     <string name="timeTitleTxt">Time:</string>
     <string name="tvTitleLocation">Location:</string>
 
+    <string name="DeleteTxBtn">Delete</string>
+    <string name="EditTxBtn">Edit</string>
+    <string name="ChangeTimeTx">Change time</string>
+    <string name="timeTx">Time: </string>
+    <string name="changeDateTx">Change date: </string>
+    <string name="dateTx">Date: </string>
+    <string name="descriptionTx">Description: </string>
+
     <string name="clearDataBtn">Delete all Reminders</string>
 
 </resources>
