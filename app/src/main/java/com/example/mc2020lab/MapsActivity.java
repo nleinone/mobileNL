@@ -1,10 +1,7 @@
 package com.example.mc2020lab;
 
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,18 +16,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,12 +28,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import org.w3c.dom.Text;
-
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
@@ -154,53 +136,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         placeNameWindow.setTitle("Choose location");
 
         placeNameWindow.setView(layout);
-
-        Log.d("DEBUG","ow2");
-
         placeNameWindow.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
-                Log.d("DEBUG","ow2");
                 Map<String, String> reminderInfo = new HashMap<String, String>();
+
                 //Get string:
                 String stringDescription = editTextPlaceName.getText().toString();
-
-                //setContentView(R.layout.activity_maps);
-
-                reminderInfo = changeReminderValue(stringDescription, "Location", reminderInfo);
-
                 SharedPreferences location = getApplicationContext().getSharedPreferences("Location", 0); // 0 - for private mode
 
                 int location_index_increased = location_index + 1;
                 String stringLocationIndex = Integer.toString(location_index_increased);
 
                 Gson gson = new Gson();
-                String reminderInfoJSON = gson.toJson(reminderInfo);
                 location.edit().putString("Location_package", "reminder" + "_" + stringLocationIndex + "_" + loginNameFinal +
                         "_" + stringDescription + "_" + stringLongitude + "_" + stringLatitude).apply();
-
                 finish();
             }
         });
         placeNameWindow.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                Log.d("DEBUG","ow3");
-
                 dialog.dismiss();
             }
         });
         placeNameWindow.show();
-        Log.d("DEBUG","ow4");
-
-
-
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
+        //Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -211,18 +178,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Add permission test if failing
         if (Build.VERSION.SDK_INT >= 23 && !isPermissionGranted())
         {
-            Log.v("onCreateMap", "t1");
-
             requestPermissions(PERMISSIONS, PERMISSION_ALL);
         }
         else
         {
-            Log.v("onCreateMap", "t2");
-             requestLocation();
+            requestLocation();
         }
+
         if(!isLocationEnabled())
         {
-            Log.v("onCreateMap", "t3");
             showAlert(1);
         }
     }
@@ -235,13 +199,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SharedPreferences login_name_pref = getApplicationContext().getSharedPreferences("login_name", 0); // 0 - for private mode
         final String loginName = login_name_pref.getString("loginName", "No name");
 
-
         //Touch functionalities:
         //REF: https://stackoverflow.com/questions/25153344/getting-coordinates-of-location-touch-on-google-map-in-android
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
-                Log.d("DEBUG","Map clicked [" + point.latitude + " / " + point.longitude + "]");
                 //Do your stuff with LatLng here
                 //Then pass LatLng to other activity
 
@@ -271,7 +233,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //REF: https://www.thecodecity.com/2017/03/location-tracker-android-app-complete.html
     public void requestLocation()
     {
-        Log.v("onCreateMap", "t2.1");
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setPowerRequirement(Criteria.POWER_HIGH);
@@ -299,18 +260,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     == PackageManager.PERMISSION_GRANTED || checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED)
             {
-                Log.v("MAPS", "test");
                 return true;
             }
             else
             {
-                Log.v("MAPS", "test2");
                 return false;
             }
         }
         else
         {
-            Log.v("MAPS", "Wrong API (Must be more than 23");
             return false;
         }
     }
@@ -372,7 +330,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LatLng myCoordinates = new LatLng(location.getLatitude(), location.getLongitude());
         String stringCoordinates = myCoordinates.toString();
-        Log.v("Current Location:", stringCoordinates);
         marker.setPosition(myCoordinates);
 
         if(firstLoad = true)
@@ -401,7 +358,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onProviderDisabled(String s) {
 
     }
-
-
-
 }

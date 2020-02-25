@@ -1,10 +1,8 @@
 package com.example.mc2020lab;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,11 +17,8 @@ import java.util.Map;
 
 public class NewUserActivity extends AppCompatActivity {
 
-
-
     public void createUser(String username_string, String password_string, String password2_string, DialogInterface.OnClickListener buttonListener)
     {
-
         SharedPreferences pref = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
         Gson gson = new Gson();
         //Check input validity:
@@ -75,7 +70,6 @@ public class NewUserActivity extends AppCompatActivity {
 
             String JsonStringUserData = gson.toJson(rootUserInfoDict);
             pref.edit().putString(username_string + "_" + "user_information", JsonStringUserData).apply();
-            //startActivity(new Intent(NewUserActivity.this, MainActivity.class));
             finish();
 
         }
@@ -91,7 +85,6 @@ public class NewUserActivity extends AppCompatActivity {
         if (v.getId() == R.id.newUserRegisterBtn) {
 
             //When the button is pressed, test if the username already exists in the device:
-
             //Check if the password is short enough (4)
 
             //Find EditTexts
@@ -103,8 +96,6 @@ public class NewUserActivity extends AppCompatActivity {
             String username_string = usernameInput.getText().toString();
             String password_string = passwordInput.getText().toString();
             String password2_string = passwordInput2.getText().toString();
-
-
 
             Gson gson = new Gson();
             SharedPreferences pref = getApplicationContext().getSharedPreferences("shared_preference", 0); // 0 - for private mode
@@ -147,8 +138,4 @@ public class NewUserActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
-
 }
